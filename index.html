@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinScope by Mr. M</title>
+    <meta name="description" content="Interactive financial dashboard for analyzing Income Statements, Balance Sheets, Cash Flows, and Financial Ratios across multiple tickers.">
+    <!-- SVG Favicon Data URI to avoid separate files -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><rect width='32' height='32' rx='8' fill='url(%23logoGrad)'/><path d='M8 22L12 14L16 18L20 10L24 16' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/><defs><linearGradient id='logoGrad' x1='0' y1='0' x2='32' y2='32'><stop stop-color='%2306b6d4'/><stop offset='1' stop-color='%238b5cf6'/></linearGradient></defs></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SheetJS (xlsx-js-style) — used for both XLSX parsing (import) and Excel export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+
+<style>:root{--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-surface:#1a2234;--bg-surface-hover:#1f2a40;--bg-card:#151d2e;--border-color:#1e2d45;--border-light:#253352;--text-primary:#f0f4f8;--text-secondary:#94a3b8;--text-muted:#64748b;--text-accent:#38bdf8;--accent-cyan:#06b6d4;--accent-purple:#8b5cf6;--accent-green:#22c55e;--accent-red:#ef4444;--accent-amber:#f59e0b;--accent-blue:#3b82f6;--gradient-brand:linear-gradient(135deg, #06b6d4, #8b5cf6);--gradient-surface:linear-gradient(135deg, rgba(6,182,212,0.08), rgba(139,92,246,0.08));--radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:20px;--shadow-sm:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 12px rgba(0,0,0,0.5);--shadow-lg:0 8px 30px rgba(0,0,0,0.6);--shadow-glow:0 0 20px rgba(6,182,212,0.15);--font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--transition-fast:150ms ease;--transition-base:250ms ease;--transition-slow:400ms ease}*,::after,::before{margin:0;padding:0;box-sizing:border-box}html{font-size:14px;scroll-behavior:smooth}body{font-family:var(--font-family);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(6,182,212,.06) 0,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(139,92,246,.06) 0,transparent 50%);pointer-events:none;z-index:0}.hidden{display:none!important}.app{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 24px 40px}.login-page{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.login-card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:40px;width:100%;max-width:400px;box-shadow:0 25px 50px -12px rgba(0,0,0,.5);backdrop-filter:blur(10px)}.login-header{text-align:center;margin-bottom:30px}.login-header .logo{display:flex;justify-content:center;margin-bottom:20px;filter:drop-shadow(0 0 15px rgba(6,182,212,.4))}.login-header h2{font-size:1.5rem;font-weight:700;color:var(--text-primary);margin-bottom:8px}.login-header p{color:var(--text-secondary);font-size:.9rem}.login-form{display:flex;flex-direction:column;gap:16px}.form-group-auth input{width:100%;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-size:.95rem;transition:all var(--transition-fast)}.form-group-auth input:focus{border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(6,182,212,.15);outline:0}.login-actions{display:flex;align-items:center;gap:12px;margin-top:8px}.btn-block{flex:1;justify-content:center}.btn-info-circle{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;background:0 0;border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast);flex-shrink:0}.btn-info-circle:hover{background:var(--bg-primary);color:var(--accent-cyan);border-color:var(--accent-cyan)}.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px 0}.macro-card{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:24px;position:relative;overflow:hidden;transition:all var(--transition-fast)}.macro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0}.macro-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.3);border-color:rgba(255,255,255,.1)}.macro-cyan::before{background:linear-gradient(90deg,#06b6d4,#22d3ee)}.macro-amber::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}.macro-purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}.macro-blue::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}.macro-green::before{background:linear-gradient(90deg,#10b981,#34d399)}.macro-red::before{background:linear-gradient(90deg,#ef4444,#f87171)}.macro-card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}.macro-icon{font-size:1.4rem;line-height:1}.macro-label{font-size:.8rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.05em}.macro-value{font-size:2rem;font-weight:800;color:var(--text-primary);margin-bottom:4px;font-variant-numeric:tabular-nums;line-height:1.2}.macro-change{display:inline-block;font-size:.85rem;font-weight:600;margin-bottom:4px}.macro-year-badge{display:inline-block;font-size:.75rem;color:var(--text-muted);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px}.macro-history{margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);max-height:190px;overflow-y:auto}.macro-history table{width:100%;font-size:.78rem;border-collapse:collapse}.macro-history td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text-secondary)}.macro-history td:last-child{text-align:right;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums}.macro-history tr:last-child td{border-bottom:none}.macro-loading{text-align:center;padding:80px 20px;color:var(--text-muted);font-size:1rem}@media (max-width:900px){.macro-grid{grid-template-columns:repeat(2,1fr)}}@media (max-width:550px){.macro-grid{grid-template-columns:1fr}}.pricing-content{max-width:600px}.pricing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}.pricing-two-col{grid-template-columns:repeat(2,1fr)}.badge-best-value{position:absolute;top:14px;right:-32px;background:var(--gradient-brand);color:#fff;font-size:.65rem;font-weight:800;padding:6px 36px;transform:rotate(45deg);text-transform:uppercase;letter-spacing:.05em;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:10}.price-strikethrough{font-size:1rem;color:var(--text-muted);text-decoration:line-through;margin-bottom:-4px;font-weight:500}.price-accent{color:var(--accent-cyan)!important}.pricing-features{list-style:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);text-align:left}.pricing-features li{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--text-primary);margin-bottom:8px;font-weight:500}.pricing-features li svg{color:var(--accent-cyan);flex-shrink:0}.pricing-countdown{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-md);padding:12px;display:flex;flex-direction:column;align-items:center;margin-top:10px;position:relative;overflow:hidden}.pricing-countdown::before{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.05),transparent);animation:shine 3s infinite}@keyframes shine{to{left:200%}}.countdown-label{font-size:.85rem;color:var(--accent-amber);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.countdown-timer{font-size:1.8rem;font-weight:800;font-family:var(--font-family);color:var(--text-primary);text-shadow:0 0 15px rgba(245,158,11,.4);letter-spacing:.05em;font-variant-numeric:tabular-nums}.pricing-card{background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:24px 16px;text-align:center;transition:all var(--transition-fast);position:relative;overflow:hidden}.pricing-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--gradient-brand);opacity:.5;transition:opacity var(--transition-fast)}.pricing-card:hover{border-color:var(--accent-cyan);transform:translateY(-2px)}.pricing-card:hover::before{opacity:1}.pricing-card h4{color:var(--text-secondary);font-size:1.1rem;font-weight:500;margin-bottom:12px}.pricing-card .price{font-size:1.4rem;font-weight:700;color:var(--text-primary)}.pricing-contact{margin-top:30px;text-align:center;padding-top:20px;border-top:1px solid var(--border-color)}.pricing-contact p{color:var(--text-secondary);margin-bottom:15px;font-size:.95rem}.header{display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border-color);margin-bottom:24px}.header-brand{display:flex;align-items:center;gap:14px}.logo{display:flex;filter:drop-shadow(0 0 8px rgba(6,182,212,.3))}.header-title{font-size:1.5rem;font-weight:800;background:var(--gradient-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em}.header-subtitle{font-size:.8rem;color:var(--text-muted);font-weight:400;letter-spacing:.02em}.header-actions{display:flex;align-items:center;gap:10px}.lang-toggle{display:inline-flex;align-items:center;padding:3px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:20px;cursor:pointer;gap:0;font-family:var(--font-family);transition:border-color var(--transition-fast)}.lang-toggle:hover{border-color:var(--accent-cyan)}.lang-option{padding:5px 12px;border-radius:16px;font-size:.75rem;font-weight:600;color:var(--text-muted);transition:all var(--transition-fast);letter-spacing:.04em}.lang-option.active{background:var(--gradient-brand);color:#fff;box-shadow:0 1px 6px rgba(6,182,212,.3)}.format-toggle{display:inline-flex;align-items:center;padding:3px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:20px;cursor:pointer;gap:0;font-family:var(--font-family);transition:border-color var(--transition-fast)}.format-toggle:hover{border-color:var(--accent-cyan)}.format-option{padding:5px 12px;border-radius:16px;font-size:.75rem;font-weight:600;color:var(--text-muted);transition:all var(--transition-fast);letter-spacing:.04em}.format-option.active{background:var(--gradient-brand);color:#fff;box-shadow:0 1px 6px rgba(6,182,212,.3);border:1px solid transparent}.metric-cb{accent-color:var(--accent-cyan)}.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:none;border-radius:var(--radius-md);font-family:var(--font-family);font-size:.85rem;font-weight:600;cursor:pointer;transition:all var(--transition-base);white-space:nowrap}.btn:disabled{opacity:.4;cursor:not-allowed}.btn-primary{background:var(--gradient-brand);color:#fff;box-shadow:0 2px 10px rgba(6,182,212,.3)}.btn-primary:hover:not(:disabled){box-shadow:0 4px 20px rgba(6,182,212,.5);transform:translateY(-1px)}.btn-primary:active:not(:disabled){transform:translateY(0)}.btn-outline{background:0 0;color:var(--text-secondary);border:1px solid var(--border-light)}.btn-outline:hover:not(:disabled){background:var(--bg-surface);color:var(--text-primary);border-color:var(--accent-cyan)}.btn-accent{background:rgba(34,197,94,.12);color:var(--accent-green);border:1px solid rgba(34,197,94,.25)}.btn-accent:hover:not(:disabled){background:rgba(34,197,94,.2);box-shadow:0 0 15px rgba(34,197,94,.15)}.query-section{margin-bottom:28px}.query-form{display:flex;align-items:flex-end;gap:14px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow-md);backdrop-filter:blur(10px)}.form-group{display:flex;flex-direction:column;gap:6px}.form-group-ticker{flex:1;min-width:240px}.form-group label{font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em}.form-group input,.form-group textarea{padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-family);font-size:.9rem;transition:all var(--transition-fast);outline:0;min-width:100px;resize:vertical}.form-group input:focus,.form-group textarea:focus{border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(6,182,212,.15)}.form-group input::placeholder,.form-group textarea::placeholder{color:var(--text-muted)}.form-hint{font-size:.7rem;color:var(--text-muted)}.form-group-btn{justify-content:flex-end}.ticker-tabs{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;padding-bottom:4px}.ticker-tab{padding:8px 18px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md) var(--radius-md) 0 0;color:var(--text-secondary);font-family:var(--font-family);font-size:.85rem;font-weight:600;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap}.ticker-tab:hover{color:var(--text-primary);background:var(--bg-surface-hover)}.ticker-tab.active{color:var(--accent-cyan);background:var(--bg-card);border-color:var(--accent-cyan);border-bottom-color:var(--bg-card);box-shadow:0 -2px 8px rgba(6,182,212,.12)}.statement-tabs{display:flex;gap:2px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:4px;margin-bottom:20px;border:1px solid var(--border-color)}.tab-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;background:0 0;border:none;border-radius:var(--radius-sm);color:var(--text-muted);font-family:var(--font-family);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--transition-base);white-space:nowrap}.tab-btn:hover{color:var(--text-secondary);background:rgba(255,255,255,.03)}.tab-btn.active{background:var(--bg-surface);color:var(--text-primary);font-weight:600;box-shadow:var(--shadow-sm)}.tab-content{min-height:300px}.tab-pane{display:none;animation:fadeIn .3s ease}.tab-pane.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.table-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-md)}.table-card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-color);background:var(--gradient-surface)}.table-card-title{font-size:.95rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}.table-card-title .badge{font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(6,182,212,.15);color:var(--accent-cyan)}.table-wrapper{overflow-x:auto;overflow-y:auto;max-height:70vh;scrollbar-width:thin;scrollbar-color:var(--border-light) transparent}.table-wrapper::-webkit-scrollbar{height:6px;width:6px}.table-wrapper::-webkit-scrollbar-track{background:0 0}.table-wrapper::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}.data-table{width:100%;border-collapse:collapse;font-size:.82rem}.data-table thead th{position:sticky;top:0;background:var(--bg-surface);color:var(--text-secondary);font-weight:600;text-align:right;padding:10px 16px;border-bottom:2px solid var(--border-color);white-space:nowrap;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;z-index:2}.data-table thead th:first-child{text-align:left;position:sticky;left:0;z-index:3;background:var(--bg-surface);min-width:220px}.data-table tbody td{padding:9px 16px;text-align:right;border-bottom:1px solid rgba(30,45,69,.5);color:var(--text-primary);transition:background var(--transition-fast);font-variant-numeric:tabular-nums}.data-table tbody td:first-child{text-align:left;color:var(--text-secondary);font-weight:500;position:sticky;left:0;background:var(--bg-card);z-index:1;min-width:220px}.data-table tbody tr:hover td{background:rgba(6,182,212,.04)}.data-table tbody tr:hover td:first-child{background-color:var(--bg-surface-hover);color:var(--text-primary)}.data-table tbody tr:nth-child(2n) td{background:rgba(255,255,255,.01)}.data-table tbody tr:nth-child(2n) td:first-child{background-color:#1a2333}.data-table tbody tr.section-header td{background:rgba(6,182,212,.06)!important;font-weight:700;color:var(--accent-cyan);border-top:2px solid var(--border-color)}.data-table tbody tr.section-header td:first-child{background-color:#18283a!important;font-size:.84rem;text-transform:uppercase;letter-spacing:.03em}.val-positive{color:var(--accent-green)!important}.val-negative{color:var(--accent-red)!important}.val-neutral{color:var(--text-muted)!important}.ratios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}.ratio-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);overflow:hidden;transition:border-color var(--transition-base),box-shadow var(--transition-base)}.ratio-card:hover{border-color:var(--border-light);box-shadow:var(--shadow-glow)}.ratio-card-header{padding:14px 18px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;gap:10px}.ratio-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1rem}.ratio-icon.profitability{background:rgba(34,197,94,.12);color:var(--accent-green)}.ratio-icon.solvency{background:rgba(59,130,246,.12);color:var(--accent-blue)}.ratio-icon.liquidity{background:rgba(6,182,212,.12);color:var(--accent-cyan)}.ratio-icon.activity{background:rgba(245,158,11,.12);color:var(--accent-amber)}.ratio-icon.valuation{background:rgba(139,92,246,.12);color:var(--accent-purple)}.ratio-card-title{font-weight:700;font-size:.9rem}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px;animation:fadeIn .5s ease}.empty-state-icon{color:var(--text-muted);margin-bottom:20px;opacity:.4}.empty-state h2{font-size:1.3rem;font-weight:700;margin-bottom:8px;color:var(--text-secondary)}.empty-state p{color:var(--text-muted);max-width:420px;font-size:.9rem}.loading-overlay{position:fixed;inset:0;background:rgba(10,14,23,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .2s ease}.spinner-container{display:flex;flex-direction:column;align-items:center;gap:20px}.spinner{width:48px;height:48px;border:3px solid var(--border-color);border-top-color:var(--accent-cyan);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.loading-text{color:var(--text-secondary);font-weight:500;font-size:.95rem}.dots::after{content:'';animation:dots 1.4s steps(4,end) infinite}@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}.toast-container{position:fixed;top:20px;right:20px;z-index:1100;display:flex;flex-direction:column;gap:8px}.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:.85rem;animation:slideIn .3s ease,fadeOut .3s ease 4s forwards;max-width:400px;backdrop-filter:blur(10px)}.toast.error{border-left:3px solid var(--accent-red);color:var(--accent-red)}.toast.success{border-left:3px solid var(--accent-green);color:var(--accent-green)}.toast.info{border-left:3px solid var(--accent-cyan);color:var(--accent-cyan)}@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}@keyframes fadeOut{from{opacity:1}to{opacity:0}}.footer{text-align:center;padding:30px 0 10px;color:var(--text-muted);font-size:.75rem;border-top:1px solid var(--border-color);margin-top:40px}@media (max-width:768px){.header{flex-direction:column;gap:14px;align-items:flex-start}.query-form{flex-direction:column}.form-group-ticker{min-width:auto}.statement-tabs{overflow-x:auto}.ratios-grid{grid-template-columns:1fr}.header-actions{width:100%}.header-actions .btn{flex:1}}@media (max-width:480px){.app{padding:0 12px 20px}html{font-size:13px}}.modal{position:fixed;inset:0;background:rgba(10,14,23,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:2000;animation:fadeIn .2s ease}.modal-content{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);width:90%;max-width:800px;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}.modal-header{padding:18px 24px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;background:var(--gradient-surface)}.modal-header h3{margin:0;font-size:1.1rem;color:var(--text-primary)}.btn-close{background:0 0;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1}.btn-close:hover{color:var(--text-primary)}.modal-body{padding:24px;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:var(--border-light) transparent}.export-options-controls{margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid var(--border-color)}.checkbox-label{display:inline-flex;align-items:center;gap:8px;color:var(--text-primary);font-weight:600;cursor:pointer}.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}.metrics-category{grid-column:1/-1;margin-top:15px;margin-bottom:5px;font-size:.85rem;font-weight:700;color:var(--accent-cyan);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border-light);padding-bottom:4px}.metric-item{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-secondary);cursor:pointer}.metric-item:hover{color:var(--text-primary)}.modal-footer{padding:18px 24px;border-top:1px solid var(--border-color);display:flex;justify-content:flex-end}.val-negative{color:var(--accent-red)!important;white-space:nowrap}.val-positive{color:var(--accent-green)!important;white-space:nowrap}</style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner-container">
+            <div style="position: relative; display: inline-flex; justify-content: center; align-items: center;">
+                <div class="spinner"></div>
+                <div id="loadingProgress" style="position: absolute; font-size: 0.85rem; font-weight: 700; color: var(--accent-cyan); letter-spacing: 0.05em; z-index: 10;"></div>
+            </div>
+            <p class="loading-text"><span data-lang-key="Loading">Loading</span><span class="dots"></span></p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#loginLogoGrad)"/>
+                        <path d="M8 22L12 14L16 18L20 10L24 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="loginLogoGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#06b6d4"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <h2 data-lang-key="Welcome to FinScope">Welcome to FinScope</h2>
+                <p data-lang-key="Sign in to access the financial dashboard">Sign in to access the financial dashboard</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group form-group-auth">
+                    <label for="usernameInput" style="display: none;">Username</label>
+                    <input type="text" id="usernameInput" placeholder="Username" data-lang-key="Username" data-lang-attr="placeholder" required autocomplete="username">
+                </div>
+                <div class="form-group form-group-auth">
+                    <label for="passwordInput" style="display: none;">Password</label>
+                    <input type="password" id="passwordInput" placeholder="Password" data-lang-key="Password" data-lang-attr="placeholder" required autocomplete="current-password">
+                </div>
+                <div class="login-actions">
+                    <button type="submit" id="btnLogin" class="btn btn-primary btn-block">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                        <span data-lang-key="Sign In">Sign In</span>
+                    </button>
+                    <button type="button" id="btnPricingInfo" class="btn-info-circle" title="Lihat Paket Berlangganan">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- App Shell (Hidden by Default) -->
+    <div id="appShell" class="app hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+                        <path d="M8 22L12 14L16 18L20 10L24 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#06b6d4"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="header-title">FinScope by Mr. M</h1>
+                    <p class="header-subtitle" data-lang-key="Financial Statement Analyzer">Financial Statement Analyzer</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="langToggle" class="lang-toggle" title="Ganti Bahasa">
+                    <span class="lang-option active" data-lang="id">ID</span>
+                    <span class="lang-option" data-lang="en">EN</span>
+                </button>
+                <button id="btnCustomExport" class="btn btn-primary" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    <span data-lang-key="Export">Export</span>
+                </button>
+                <button id="btnLogout" class="btn btn-outline" style="padding: 10px 12px;" title="Logout">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Query Form -->
+        <section class="query-section">
+            <form id="queryForm" class="query-form">
+                <div class="form-group form-group-ticker">
+                    <label for="tickerInput" data-lang-key="Tickers">Tickers</label>
+                    <textarea id="tickerInput" rows="2" placeholder="For Indonesian stocks, please add (.JK) at the end.&#10;e.g. BBCA.JK, BBRI.JK" data-lang-key="ticker_placeholder" data-lang-attr="placeholder" autocomplete="off" required></textarea>
+                    <span class="form-hint" data-lang-key="Separate with commas or new lines.">Separate with commas or new lines.</span>
+                </div>
+                <div class="form-group">
+                    <label for="startYear" data-lang-key="Start Year">Start Year</label>
+                    <input type="number" id="startYear" value="2020" required>
+                </div>
+                <div class="form-group">
+                    <label for="endYear" data-lang-key="End Year">End Year</label>
+                    <input type="number" id="endYear" value="2024" required>
+                </div>
+                <div class="form-group form-group-btn">
+                    <button type="submit" id="fetchBtn" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        <span data-lang-key="Analyze">Analyze</span>
+                    </button>
+                </div>
+            </form>
+            <div id="incompleteDataAlert" class="incomplete-data-alert hidden" style="margin-top: 20px; padding: 15px; background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; border-radius: 6px; font-size: 0.9rem; color: var(--text-primary); text-align: left;">
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: #f59e0b; margin-bottom: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span data-lang-key="Incomplete Data Notice">Incomplete Data Notice</span>
+                </div>
+                <ul id="incompleteDataList" style="margin: 0; padding-left: 20px; line-height: 1.6;"></ul>
+            </div>
+        </section>
+
+        <!-- Results Area -->
+        <section id="resultsArea" class="results-area hidden">
+            <!-- Ticker Tabs (for multi-ticker) -->
+            <div id="tickerTabs" class="ticker-tabs"></div>
+
+            <!-- Statement Tabs -->
+            <div class="statement-tabs">
+                <button class="tab-btn active" data-tab="income" data-lang-key="Income Statement">Income Statement</button>
+                <button class="tab-btn" data-tab="balance" data-lang-key="Balance Sheet">Balance Sheet</button>
+                <button class="tab-btn" data-tab="cashflow" data-lang-key="Cash Flow">Cash Flow</button>
+                <button class="tab-btn" data-tab="ratios">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                    <span data-lang-key="Financial Ratios">Financial Ratios</span>
+                </button>
+                <button class="tab-btn" data-tab="macro">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span data-lang-key="Macroeconomics">Macroeconomics</span>
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tabContent" class="tab-content">
+                <div id="incomeTab" class="tab-pane active"></div>
+                <div id="balanceTab" class="tab-pane"></div>
+                <div id="cashflowTab" class="tab-pane"></div>
+                <div id="ratiosTab" class="tab-pane"></div>
+                <div id="macroTab" class="tab-pane"></div>
+            </div>
+        </section>
+
+        <!-- Empty State -->
+        <section id="emptyState" class="empty-state">
+            <div class="empty-state-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 3v18h18"/>
+                    <path d="M7 16l4-8 4 4 4-6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2 data-lang-key="Enter tickers to begin analysis">Enter tickers to begin analysis</h2>
+            <p data-lang-key="Input one or more stock tickers above to fetch and analyze financial statements with comprehensive ratio calculations.">Input one or more stock tickers above to fetch and analyze financial statements with comprehensive ratio calculations.</p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>FinScope by Mr. M &copy; 2026</p>
+        </footer>
+    </div>
+
+    <!-- Custom Export Modal -->
+    <div id="exportModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-lang-key="Custom Excel Export">Custom Excel Export</h3>
+                <button id="btnCloseModal" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 0.85rem;" data-lang-key="Select the specific data columns you want to include in the exported Excel file.">Select the specific data columns you want to include in the exported Excel file.</p>
+                <div class="export-options-controls" style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="checkbox-label"><input type="checkbox" id="checkAllMetrics"> <span data-lang-key="Select All Data">Select All Data</span></label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);" data-lang-key="Number Format:">Number Format:</span>
+                        <div class="format-toggle" id="exportFormatToggle" data-format="id">
+                            <div class="format-option active" data-val="id">ID</div>
+                            <div class="format-option" data-val="en">EN</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="metrics-grid" id="metricsGrid">
+                    <!-- Metrics checkboxes injected here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnDoCustomExport" class="btn btn-primary" data-lang-key="Download Custom Excel">Download Custom Excel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Info Modal -->
+    <div id="pricingModal" class="modal hidden">
+        <div class="modal-content pricing-content">
+            <div class="modal-header">
+                <h3 data-lang-key="Subscription Packages">Subscription Packages</h3>
+                <button id="btnClosePricingModal" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pricing-countdown">
+                    <span class="countdown-label" data-lang-key="Special Offer Ends In:">Special Offer Ends In:</span>
+                    <span id="promoCountdown" class="countdown-timer">00:00:00</span>
+                </div>
+                <div class="pricing-cards pricing-two-col">
+                    <div class="pricing-card">
+                        <h4 data-lang-key="7 Days">7 Days</h4>
+                        <div class="price">Rp 14.000</div>
+                        <ul class="pricing-features">
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span data-lang-key="No Limit Usage">No Limit Usage</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card" style="border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(6,182,212,0.15);">
+                        <div class="badge-best-value" data-lang-key="Best Value">Best Value</div>
+                        <h4 data-lang-key="30 Days">30 Days</h4>
+                        <div class="price-strikethrough">Rp 60.000</div>
+                        <div class="price price-accent">Rp 29.000</div>
+                        <ul class="pricing-features">
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span data-lang-key="No Limit Usage">No Limit Usage</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pricing-contact">
+                    <p data-lang-key="To order an account or renew your subscription, please contact:">To order an account or renew your subscription, please contact:</p>
+                    <a href="https://t.me/mrmcreator" target="_blank" class="btn btn-outline">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2Z"></path></svg>
+                        @mrmcreator on Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    
+    
+    
+
+<script>/* ========================================
+   FinScope — Language Module (EN / ID)
+   ======================================== */
+
+const Lang = {
+    current: 'id',
+
+    translations: {
+        en: {
+            'ticker_placeholder': 'For Indonesian stocks, please add (.JK) at the end.\ne.g. BBCA.JK, BBRI.JK',
+            'no_data_for_ticker': 'No data returned for "{ticker}" in the specified period.',
+            'success_loaded': 'Successfully loaded {count} ticker(s)',
+            'error_fetching': 'Error fetching "{ticker}"',
+        },
+        id: {
+            // Login
+            'Welcome to FinScope': 'Selamat Datang di FinScope',
+            'Sign in to access the financial dashboard': 'Masuk untuk mengakses dashboard keuangan',
+            'Username': 'Nama Pengguna',
+            'Password': 'Kata Sandi',
+            'Sign In': 'Masuk',
+            'Verifying...': 'Memverifikasi...',
+
+            // Header
+            'Financial Statement Analyzer': 'Analisis Laporan Keuangan',
+            'Export': 'Ekspor',
+
+            // Query form
+            'Tickers': 'Kode Saham',
+            'ticker_placeholder': 'Untuk saham Indonesia, tambahkan (.JK) di akhir.\nContoh: BBCA.JK, BBRI.JK',
+            'Separate with commas or new lines.': 'Pisahkan dengan koma atau baris baru.',
+            'Start Year': 'Tahun Awal',
+            'End Year': 'Tahun Akhir',
+            'Analyze': 'Analisis',
+
+            // Statement tabs
+            'Income Statement': 'Laporan Laba Rugi',
+            'Balance Sheet': 'Laporan Posisi Keuangan',
+            'Cash Flow': 'Laporan Arus Kas',
+            'Cash Flow Statement': 'Laporan Arus Kas',
+            'Financial Ratios': 'Rasio Keuangan',
+
+            // Macroeconomics tab
+            'Macroeconomics': 'Makroekonomi',
+            'GDP Growth (YoY)': 'Pertumbuhan PDB (YoY)',
+            'Inflation (YoY)': 'Inflasi (YoY)',
+            'Unemployment': 'Pengangguran',
+            'Interest Rate': 'Suku Bunga',
+            'USD/IDR Exchange': 'Kurs USD/IDR',
+            'IHSG Index': 'Indeks IHSG',
+            'Loading macroeconomic data...': 'Memuat data makroekonomi...',
+            'Failed to load macroeconomic data.': 'Gagal memuat data makroekonomi.',
+            'Year': 'Tahun',
+            'Value': 'Nilai',
+            'Latest Data': 'Data Terbaru',
+            'Change': 'Perubahan',
+            'History': 'Riwayat',
+
+            // Loading
+            'In just a few seconds': 'Dalam beberapa detik',
+            'Loading': 'Memuat',
+
+            // Empty state
+            'Enter tickers to begin analysis': 'Masukkan kode saham untuk memulai analisis',
+            'Input one or more stock tickers above to fetch and analyze financial statements with comprehensive ratio calculations.': 'Masukkan satu atau lebih kode saham di atas untuk mengambil dan menganalisis laporan keuangan dengan perhitungan rasio yang komprehensif.',
+
+            // Export modal
+            'Custom Excel Export': 'Ekspor Excel Kustom',
+            'Select the specific data columns you want to include in the exported Excel file.': 'Pilih kolom data spesifik yang ingin Anda sertakan dalam file Excel yang diekspor.',
+            'Select All Data': 'Pilih Semua Data',
+            'Download Custom Excel': 'Unduh Excel Kustom',
+
+            // Pricing modal
+            'Subscription Packages': 'Paket Berlangganan',
+            'Weekly': 'Mingguan',
+            'Monthly': 'Bulanan',
+            'Yearly': 'Tahunan',
+            '7 Days': '7 Hari',
+            '30 Days': '30 Hari',
+            'Special Offer Ends In:': 'Penawaran Spesial Berakhir Dalam:',
+            'Best Value': 'Pilihan Terbaik',
+            'No Limit Usage': 'Tanpa Batasan Kuota',
+            'To order an account or renew your subscription, please contact:': 'Untuk memesan akun atau memperpanjang langganan, silakan hubungi:',
+
+            // Toast messages
+            'Please enter at least one ticker symbol.': 'Silakan masukkan setidaknya satu kode saham.',
+            'Start year cannot be after end year.': 'Tahun awal tidak boleh setelah tahun akhir.',
+            'No valid tickers provided.': 'Tidak ada kode saham yang valid.',
+            'Please select at least one metric.': 'Silakan pilih setidaknya satu metrik.',
+            'Custom Excel exported successfully!': 'Ekspor Excel kustom berhasil!',
+            'Connection error during authentication': 'Kesalahan koneksi saat autentikasi',
+            'no_data_for_ticker': 'Tidak ada data untuk "{ticker}" dalam periode yang ditentukan.',
+            'success_loaded': 'Berhasil memuat {count} kode saham',
+            'error_fetching': 'Gagal mengambil data "{ticker}"',
+
+            // Table
+            'Metric': 'Metrik',
+            'Other': 'Lainnya',
+            'No data available.': 'Data tidak tersedia.',
+            'No data available to compute ratios.': 'Data tidak tersedia untuk menghitung rasio.',
+            'years': 'tahun',
+
+            // Misc UI
+            'Number Format:': 'Format Angka:',
+            'Loading...': 'Memuat...',
+            'days': 'hari',
+
+            // Income Statement sections
+            'Revenue & Gross Profit': 'Pendapatan & Laba Kotor',
+            'Operating Performance': 'Kinerja Operasional',
+            'Bottom Line': 'Laba Bersih',
+            'EBITDA': 'EBITDA',
+
+            // Balance Sheet sections
+            'Current Assets': 'Aset Lancar',
+            'Non-Current Assets': 'Aset Tidak Lancar',
+            'Total Assets': 'Total Aset',
+            'Current Liabilities': 'Utang Jangka Pendek',
+            'Non-Current Liabilities': 'Utang Jangka Panjang',
+            'Total Liabilities': 'Total Utang',
+            'Equity': 'Ekuitas',
+            'Debt Summary': 'Ringkasan Utang',
+
+            // Cash Flow sections
+            'Operating Activities': 'Aktivitas Operasi',
+            'Investing Activities': 'Aktivitas Investasi',
+            'Financing Activities': 'Aktivitas Pendanaan',
+            'Summary': 'Ringkasan',
+
+            // Ratio titles
+            'Profitability Ratios': 'Rasio Profitabilitas',
+            'Solvency Ratios': 'Rasio Solvabilitas',
+            'Liquidity Ratios': 'Rasio Likuiditas',
+            'Activity Ratios': 'Rasio Aktivitas',
+            'Market Valuation Ratios': 'Rasio Valuasi Pasar',
+
+            // Export categories
+            'Income Statement (section)': 'Laporan Laba Rugi',
+            'Balance Sheet (section)': 'Laporan Posisi Keuangan',
+            'Cash Flow (section)': 'Laporan Arus Kas',
+            'Key Stats': 'Statistik Utama',
+            'Financial Ratios (section)': 'Rasio Keuangan',
+        }
+    },
+
+    // Metric labels: camelCase API keys → Indonesian (PSAK)
+    metricLabels: {
+        en: {},
+        id: {
+            // Income Statement
+            revenue: 'Pendapatan',
+            costOfRevenue: 'Beban Pokok Penjualan',
+            grossProfit: 'Laba Kotor',
+            grossProfitRatio: 'Gross Profit Margin (GPM)',
+            operatingExpenses: 'Beban Operasional',
+            sellingGeneralAndAdministrativeExpenses: 'Beban Penjualan, Umum dan Administrasi',
+            researchAndDevelopmentExpenses: 'Beban Penelitian dan Pengembangan',
+            depreciationAndAmortization: 'Penyusutan dan Amortisasi',
+            operatingIncome: 'Laba Operasional',
+            operatingIncomeRatio: 'Operating Profit Margin (OPM)',
+            interestExpense: 'Beban Bunga',
+            interestIncome: 'Pendapatan Bunga',
+            incomeBeforeTax: 'Laba Sebelum Pajak',
+            incomeTaxExpense: 'Beban Pajak Penghasilan',
+            netIncome: 'Laba Bersih',
+            netIncomeRatio: 'Net Profit Margin (NPM)',
+            eps: 'EPS',
+            epsDiluted: 'EPS Terdilusi',
+            weightedAverageShsOut: 'Rata-rata Tertimbang Saham Beredar',
+            weightedAverageShsOutDil: 'Rata-rata Tertimbang Saham Beredar (Terdilusi)',
+            ebitda: 'EBITDA',
+            ebitdaRatio: 'EBITDA Margin',
+
+            // Balance Sheet
+            cashAndCashEquivalents: 'Kas dan Setara Kas',
+            shortTermInvestments: 'Investasi Jangka Pendek',
+            cashAndShortTermInvestments: 'Kas dan Investasi Jangka Pendek',
+            netReceivables: 'Piutang Usaha',
+            inventory: 'Persediaan',
+            otherCurrentAssets: 'Aset Lancar Lainnya',
+            totalCurrentAssets: 'Total Aset Lancar',
+            propertyPlantEquipmentNet: 'Aset Tetap Bersih',
+            goodwill: 'Goodwill',
+            intangibleAssets: 'Aset Tidak Berwujud',
+            goodwillAndIntangibleAssets: 'Goodwill dan Aset Tidak Berwujud',
+            longTermInvestments: 'Investasi Jangka Panjang',
+            taxAssets: 'Aset Pajak',
+            otherNonCurrentAssets: 'Aset Tidak Lancar Lainnya',
+            totalNonCurrentAssets: 'Total Aset Tidak Lancar',
+            totalAssets: 'Total Aset',
+            accountPayables: 'Utang Usaha',
+            shortTermDebt: 'Utang Jangka Pendek',
+            taxPayables: 'Utang Pajak',
+            deferredRevenue: 'Pendapatan Diterima di Muka',
+            otherCurrentLiabilities: 'Utang Jangka Pendek Lainnya',
+            totalCurrentLiabilities: 'Total Utang Jangka Pendek',
+            longTermDebt: 'Utang Jangka Panjang',
+            deferredRevenueNonCurrent: 'Pendapatan Diterima di Muka Jangka Panjang',
+            deferredTaxLiabilitiesNonCurrent: 'Utang Pajak Tangguhan',
+            otherNonCurrentLiabilities: 'Utang Jangka Panjang Lainnya',
+            totalNonCurrentLiabilities: 'Total Utang Jangka Panjang',
+            totalLiabilities: 'Total Utang',
+            commonStock: 'Saham Biasa',
+            retainedEarnings: 'Saldo Laba',
+            accumulatedOtherComprehensiveIncomeLoss: 'Akumulasi Pendapatan Komprehensif Lain',
+            othertotalStockholdersEquity: 'Ekuitas Pemegang Saham Lainnya',
+            totalStockholdersEquity: 'Total Ekuitas Pemegang Saham',
+            totalEquity: 'Total Ekuitas',
+            totalLiabilitiesAndStockholdersEquity: 'Total Utang dan Ekuitas Pemegang Saham',
+            minorityInterest: 'Kepentingan Non-Pengendali',
+            totalLiabilitiesAndTotalEquity: 'Total Utang dan Total Ekuitas',
+            totalDebt: 'Total Utang',
+            netDebt: 'Utang Bersih',
+
+            // Cash Flow
+            deferredIncomeTax: 'Pajak Penghasilan Tangguhan',
+            stockBasedCompensation: 'Kompensasi Berbasis Saham',
+            changeInWorkingCapital: 'Perubahan Modal Kerja',
+            accountsReceivables: 'Piutang Usaha',
+            accountsPayables: 'Utang Usaha',
+            otherWorkingCapital: 'Modal Kerja Lainnya',
+            otherNonCashItems: 'Pos Non-Kas Lainnya',
+            netCashProvidedByOperatingActivities: 'Arus Kas Bersih dari Aktivitas Operasi',
+            investmentsInPropertyPlantAndEquipment: 'Investasi pada Aset Tetap',
+            acquisitionsNet: 'Akuisisi Bersih',
+            purchasesOfInvestments: 'Pembelian Investasi',
+            salesMaturitiesOfInvestments: 'Penjualan/Jatuh Tempo Investasi',
+            otherInvestingActivites: 'Aktivitas Investasi Lainnya',
+            netCashUsedForInvestingActivites: 'Arus Kas Bersih untuk Aktivitas Investasi',
+            debtRepayment: 'Pembayaran Utang',
+            commonStockIssued: 'Penerbitan Saham Biasa',
+            commonStockRepurchased: 'Pembelian Kembali Saham',
+            dividendsPaid: 'Pembayaran Dividen',
+            otherFinancingActivites: 'Aktivitas Pendanaan Lainnya',
+            netCashUsedProvidedByFinancingActivities: 'Arus Kas Bersih dari Aktivitas Pendanaan',
+            effectOfForexChangesOnCash: 'Pengaruh Perubahan Kurs terhadap Kas',
+            netChangeInCash: 'Perubahan Bersih Kas',
+            cashAtEndOfPeriod: 'Kas Akhir Periode',
+            cashAtBeginningOfPeriod: 'Kas Awal Periode',
+            operatingCashFlow: 'Arus Kas Operasi',
+            capitalExpenditure: 'Belanja Modal',
+            freeCashFlow: 'Arus Kas Bebas',
+
+            // Additional keys (appear in "Other" / "LAINNYA" section)
+            otherAssets: 'Aset Lainnya',
+            otherLiabilities: 'Utang Lainnya',
+            capitalLeaseObligations: 'Utang Sewa Pembiayaan',
+            preferredStock: 'Saham Preferen',
+            totalInvestments: 'Total Investasi',
+            sellingAndMarketingExpenses: 'Beban Penjualan dan Pemasaran',
+            generalAndAdministrativeExpenses: 'Beban Umum dan Administrasi',
+            otherExpenses: 'Beban Lainnya',
+            totalOtherIncomeExpensesNet: 'Total Pendapatan (Beban) Lain-lain Bersih',
+            incomeBeforeTaxRatio: 'Pre-tax Profit Margin',
+            netIncomeDepr: 'Laba Bersih (Penyusutan)',
+            receivables: 'Piutang Usaha',
+            payables: 'Utang',
+            
+            // Reconciled specific unhandled keys
+            costAndExpenses: 'Total Beban',
+            epsdiluted: 'EPS Terdilusi',
+            weightedAverageSharesOutstanding: 'Rata-rata Tertimbang Saham Beredar',
+            weightedAverageSharesOutstandingDiluted: 'Rata-rata Tertimbang Saham Beredar (Terdilusi)',
+            otherStockholdersEquity: 'Ekuitas Pemegang Saham Lainnya',
+            ebitdaratio: 'EBITDA Margin',
+        }
+    },
+
+    /**
+     * Get translated string for current language.
+     * Falls back: current lang → en explicit → key itself.
+     */
+    t(key) {
+        const cur = this.translations[this.current];
+        if (cur && cur[key] !== undefined) return cur[key];
+        const en = this.translations.en;
+        if (en && en[key] !== undefined) return en[key];
+        return key;
+    },
+
+    /**
+     * Template-based translation with variable substitution.
+     * Usage: Lang.tf('no_data_for_ticker', { ticker: 'AAPL' })
+     */
+    tf(key, vars) {
+        let str = this.t(key);
+        if (vars) {
+            Object.entries(vars).forEach(([k, v]) => {
+                str = str.replace(`{${k}}`, v);
+            });
+        }
+        return str;
+    },
+
+    /**
+     * Translate camelCase API field name to human-readable label.
+     * In ID mode, uses PSAK-standard terms; in EN mode, auto-generates from camelCase.
+     */
+    labelFromKey(key) {
+        if (this.metricLabels[this.current] && this.metricLabels[this.current][key]) {
+            return this.metricLabels[this.current][key];
+        }
+        return key
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, s => s.toUpperCase())
+            .replace(/  +/g, ' ')
+            .replace(/^Eps$/i, 'EPS')
+            .replace('Ebitda', 'EBITDA')
+            .trim();
+    },
+
+    /**
+     * Switch language and update all UI elements.
+     */
+    set(lang) {
+        this.current = lang;
+        // Update toggle button
+        document.querySelectorAll('.lang-option').forEach(el => {
+            el.classList.toggle('active', el.dataset.lang === lang);
+        });
+        // Update all static translatable elements
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            const attr = el.getAttribute('data-lang-attr');
+            if (attr === 'placeholder') {
+                el.placeholder = this.t(key);
+            } else {
+                el.textContent = this.t(key);
+            }
+        });
+        // Re-render dynamic content if data is loaded
+        if (typeof AppState !== 'undefined' && AppState.activeTicker) {
+            renderActiveTickerData();
+        }
+    }
+};
+
+;
+/* ========================================
+   FinScope — Financial Ratios Engine
+   ======================================== */
+
+const RatiosEngine = {
+    /**
+     * Calculate all financial ratios from parsed financial data
+     * @param {Object} data - Parsed financial data with income, balance, cashflow, keystats
+     * @returns {Object} - All calculated ratios grouped by pillar
+     */
+    calculate(data) {
+        const { income, balance, cashflow, keystats } = data;
+        const years = Object.keys(income || {});
+        if (!years.length) return null;
+
+        const result = {
+            profitability: this.calcProfitability(income, balance, years),
+            solvency: this.calcSolvency(income, balance, years),
+            liquidity: this.calcLiquidity(balance, years),
+            activity: this.calcActivity(income, balance, years),
+            valuation: this.calcValuation(income, balance, keystats, years)
+        };
+
+        return result;
+    },
+
+    // Helper: safe division
+    div(a, b) {
+        if (!b || b === 0 || a == null) return null;
+        return a / b;
+    },
+
+    // Helper: format ratio value
+    fmt(val, type = 'pct') {
+        if (val == null || isNaN(val)) return '—';
+        if (type === 'pct') return (val * 100).toFixed(2) + '%';
+        if (type === 'x') return val.toFixed(2) + 'x';
+        if (type === 'days') return val.toFixed(1) + ' ' + Lang.t('days');
+        if (type === 'num') return val.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        if (type === 'currency') return val.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        return val.toFixed(2);
+    },
+
+    // ─── PROFITABILITY ───
+    calcProfitability(inc, bal, years) {
+        const metrics = [
+            { name: 'Gross Profit Margin', key: 'grossMargin', type: 'pct' },
+            { name: 'Operating Margin', key: 'operatingMargin', type: 'pct' },
+            { name: 'Net Profit Margin', key: 'netMargin', type: 'pct' },
+            { name: 'Return on Assets (ROA)', key: 'roa', type: 'pct' },
+            { name: 'Return on Equity (ROE)', key: 'roe', type: 'pct' },
+        ];
+
+        const data = {};
+        years.forEach(y => {
+            const i = inc[y] || {};
+            const b = bal[y] || {};
+            data[y] = {
+                grossMargin: this.div(i.grossProfit, i.revenue),
+                operatingMargin: this.div(i.operatingIncome, i.revenue),
+                netMargin: this.div(i.netIncome, i.revenue),
+                ebitdaMargin: this.div(i.ebitda, i.revenue),
+                roa: this.div(i.netIncome, b.totalAssets),
+                roe: this.div(i.netIncome, b.totalEquity || b.totalStockholdersEquity),
+                eps: i.eps || null,
+            };
+        });
+
+        return { metrics, data, icon: '📈', colorClass: 'profitability', title: 'Profitability Ratios' };
+    },
+
+    // ─── SOLVENCY ───
+    calcSolvency(inc, bal, years) {
+        const metrics = [
+            { name: 'Debt-to-Equity Ratio', key: 'debtToEquity', type: 'x' },
+            { name: 'Debt-to-Assets Ratio', key: 'debtToAssets', type: 'pct' },
+            { name: 'Equity Ratio', key: 'equityRatio', type: 'pct' },
+            { name: 'Interest Coverage Ratio', key: 'interestCoverage', type: 'x' },
+            { name: 'Long-term Debt to Equity', key: 'ltDebtToEquity', type: 'x' },
+        ];
+
+        const data = {};
+        years.forEach(y => {
+            const i = inc[y] || {};
+            const b = bal[y] || {};
+            const equity = b.totalEquity || b.totalStockholdersEquity || 0;
+            const totalDebt = b.totalDebt || ((b.shortTermDebt || 0) + (b.longTermDebt || 0));
+            data[y] = {
+                debtToEquity: this.div(totalDebt, equity),
+                debtToAssets: this.div(totalDebt, b.totalAssets),
+                equityRatio: this.div(equity, b.totalAssets),
+                interestCoverage: this.div(i.operatingIncome, i.interestExpense ? Math.abs(i.interestExpense) : null),
+                ltDebtToEquity: this.div(b.longTermDebt, equity),
+                dscr: this.div(i.operatingIncome, totalDebt > 0 ? totalDebt : null),
+            };
+        });
+
+        return { metrics, data, icon: '🛡️', colorClass: 'solvency', title: 'Solvency Ratios' };
+    },
+
+    // ─── LIQUIDITY ───
+    calcLiquidity(bal, years) {
+        const metrics = [
+            { name: 'Current Ratio', key: 'currentRatio', type: 'x' },
+            { name: 'Quick Ratio', key: 'quickRatio', type: 'x' },
+            { name: 'Cash Ratio', key: 'cashRatio', type: 'x' },
+            { name: 'Working Capital', key: 'workingCapital', type: 'currency' },
+            { name: 'Working Capital Ratio', key: 'wcRatio', type: 'pct' },
+        ];
+
+        const data = {};
+        years.forEach(y => {
+            const b = bal[y] || {};
+            const currentAssets = b.totalCurrentAssets || 0;
+            const currentLiab = b.totalCurrentLiabilities || 0;
+            const inventory = b.inventory || 0;
+            const cash = b.cashAndCashEquivalents || b.cashAndShortTermInvestments || 0;
+            data[y] = {
+                currentRatio: this.div(currentAssets, currentLiab),
+                quickRatio: this.div(currentAssets - inventory, currentLiab),
+                cashRatio: this.div(cash, currentLiab),
+                workingCapital: currentAssets - currentLiab,
+                wcRatio: this.div(currentAssets - currentLiab, currentAssets),
+            };
+        });
+
+        return { metrics, data, icon: '💧', colorClass: 'liquidity', title: 'Liquidity Ratios' };
+    },
+
+    // ─── ACTIVITY ───
+    calcActivity(inc, bal, years) {
+        const metrics = [
+            { name: 'Asset Turnover', key: 'assetTurnover', type: 'x' },
+            { name: 'Receivables Turnover', key: 'receivablesTurnover', type: 'x' },
+            { name: 'Inventory Turnover', key: 'inventoryTurnover', type: 'x' },
+            { name: 'Days Sales Outstanding', key: 'dso', type: 'days' },
+            { name: 'Days Inventory Outstanding', key: 'dio', type: 'days' },
+        ];
+
+        const data = {};
+        years.forEach(y => {
+            const i = inc[y] || {};
+            const b = bal[y] || {};
+            const receivables = b.netReceivables || b.accountsReceivable || 0;
+            const inventory = b.inventory || 0;
+            const payables = b.accountsPayables || b.accountPayables || 0;
+            const cogs = i.costOfRevenue || i.costOfGoodsSold || 0;
+            const ppe = b.propertyPlantEquipmentNet || b.propertyPlantAndEquipment || 0;
+
+            const recTurnover = this.div(i.revenue, receivables);
+            const invTurnover = this.div(cogs, inventory);
+            const payTurnover = this.div(cogs, payables);
+
+            data[y] = {
+                assetTurnover: this.div(i.revenue, b.totalAssets),
+                fixedAssetTurnover: this.div(i.revenue, ppe),
+                receivablesTurnover: recTurnover,
+                inventoryTurnover: invTurnover,
+                payablesTurnover: payTurnover,
+                dso: recTurnover ? 365 / recTurnover : null,
+                dio: invTurnover ? 365 / invTurnover : null,
+                dpo: payTurnover ? 365 / payTurnover : null,
+            };
+        });
+
+        return { metrics, data, icon: '⚡', colorClass: 'activity', title: 'Activity Ratios' };
+    },
+
+    // ─── MARKET VALUATION ───
+    calcValuation(inc, bal, keystats, years) {
+        const metrics = [
+            { name: 'Market Capitalization', key: 'marketCap', type: 'currency' },
+            { name: 'Enterprise Value', key: 'ev', type: 'currency' },
+            { name: 'P/E Ratio', key: 'pe', type: 'x' },
+            { name: 'P/B Ratio', key: 'pb', type: 'x' },
+            { name: 'Dividend Yield', key: 'dividendYield', type: 'pct' },
+        ];
+
+        const data = {};
+        years.forEach(y => {
+            const i = inc[y] || {};
+            const b = bal[y] || {};
+            const k = keystats[y] || {};
+            const equity = b.totalEquity || b.totalStockholdersEquity || 0;
+            const marketCap = k.marketCapitalization || null;
+            const ev = k.enterpriseValue || null;
+
+            data[y] = {
+                marketCap: marketCap,
+                ev: ev,
+                pe: this.div(marketCap, i.netIncome),
+                pb: this.div(marketCap, equity),
+                evEbitda: this.div(ev, i.ebitda),
+                ps: this.div(marketCap, i.revenue),
+                evRevenue: this.div(ev, i.revenue),
+                dividendYield: i.dividendYield || k.dividendYield || null,
+            };
+        });
+
+        return { metrics, data, icon: '💎', colorClass: 'valuation', title: 'Market Valuation Ratios' };
+    },
+
+    /**
+     * Render a custom generated ratio table
+     */
+    renderCustomRatios(customRatios, rawData, years) {
+        if (!customRatios || customRatios.length === 0) return '';
+        
+        let html = `
+        <div class="ratios-grid" style="margin-bottom: 20px;">
+            <div class="ratio-card" style="grid-column: 1 / -1;">
+                <div class="ratio-card-header">
+                    <div class="ratio-icon" style="background: rgba(139,92,246,0.12); color: var(--accent-purple);">🔧</div>
+                    <span class="ratio-card-title">${Lang.t('Custom Ratios')}</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>${Lang.t('Metric')}</th>`;
+        years.forEach(y => { html += `<th>${y}</th>`; });
+        html += `</tr></thead><tbody>`;
+        
+        customRatios.forEach(cr => {
+            html += `<tr><td>${cr.name} <span style="font-size:0.7em;color:var(--text-muted);display:block;">${cr.m1} ${cr.op} ${cr.m2}</span></td>`;
+            years.forEach(y => {
+                let v1 = null, v2 = null;
+                ['income', 'balance', 'cashflow'].forEach(type => {
+                    if (rawData[type] && rawData[type][y]) {
+                        if (rawData[type][y][cr.m1] !== undefined) v1 = rawData[type][y][cr.m1];
+                        if (rawData[type][y][cr.m2] !== undefined) v2 = rawData[type][y][cr.m2];
+                    }
+                });
+                
+                let res = null;
+                if (v1 != null && v2 != null) {
+                    if (cr.op === '+') res = v1 + v2;
+                    if (cr.op === '-') res = v1 - v2;
+                    if (cr.op === '*') res = v1 * v2;
+                    if (cr.op === '/') res = v2 !== 0 ? v1 / v2 : null;
+                }
+                
+                const formatted = res !== null ? res.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—';
+                const cls = (res !== null && res < 0) ? 'val-negative' : '';
+                html += `<td class="${cls}">${formatted}</td>`;
+            });
+            html += `</tr>`;
+        });
+        
+        html += `</tbody></table></div></div></div>`;
+        return html;
+    },
+
+    /**
+     * Render ratios into an HTML container
+     */
+    renderRatios(ratios, years) {
+        if (!ratios) return `<p class="val-neutral" style="text-align:center;padding:40px;">${Lang.t('No data available to compute ratios.')}</p>`;
+
+        const pillars = ['profitability', 'solvency', 'liquidity', 'activity', 'valuation'];
+        let html = '<div class="ratios-grid">';
+
+        pillars.forEach(key => {
+            const pillar = ratios[key];
+            if (!pillar) return;
+
+            html += `
+            <div class="ratio-card">
+                <div class="ratio-card-header">
+                    <div class="ratio-icon ${pillar.colorClass}">${pillar.icon}</div>
+                    <span class="ratio-card-title">${Lang.t(pillar.title)}</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>${Lang.t('Metric')}</th>`;
+
+            years.forEach(y => { html += `<th>${y}</th>`; });
+            html += `</tr></thead><tbody>`;
+
+            pillar.metrics.forEach(m => {
+                html += `<tr><td>${m.name}</td>`;
+                years.forEach(y => {
+                    const val = pillar.data[y]?.[m.key];
+                    const formatted = this.fmt(val, m.type);
+                    let cls = '';
+                    if (val != null && typeof val === 'number') {
+                        if (m.type === 'pct' || m.type === 'x') {
+                            // context-dependent coloring
+                            if (m.key === 'debtToEquity' || m.key === 'debtToAssets' || m.key === 'ltDebtToEquity') {
+                                cls = val > 1 ? 'val-negative' : 'val-positive';
+                            } else if (m.type === 'pct' && val < 0) {
+                                cls = 'val-negative';
+                            }
+                        }
+                    }
+                    html += `<td class="${cls}">${formatted}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table></div></div>`;
+        });
+
+        html += '</div>';
+        return html;
+    }
+};
+
+;
+/* ========================================
+   FinScope — Export Module (CSV + Excel)
+   ======================================== */
+
+const ExportModule = {
+    /**
+     * Export all ticker data + ratios to CSV
+     */
+    exportCSV(allTickerData) {
+        const lines = [];
+        
+        Object.entries(allTickerData).forEach(([ticker, data]) => {
+            const years = data.years || [];
+            
+            // Income Statement
+            lines.push(`\n=== ${ticker} — Income Statement ===`);
+            lines.push(['Metric', ...years].join(','));
+            if (data.income) {
+                Object.keys(data.income[years[0]] || {}).forEach(key => {
+                    const row = [this.labelFromKey(key)];
+                    years.forEach(y => row.push(data.income[y]?.[key] ?? ''));
+                    lines.push(row.join(','));
+                });
+            }
+
+            // Balance Sheet
+            lines.push(`\n=== ${ticker} — Balance Sheet ===`);
+            lines.push(['Metric', ...years].join(','));
+            if (data.balance) {
+                Object.keys(data.balance[years[0]] || {}).forEach(key => {
+                    const row = [this.labelFromKey(key)];
+                    years.forEach(y => row.push(data.balance[y]?.[key] ?? ''));
+                    lines.push(row.join(','));
+                });
+            }
+
+            // Cash Flow
+            lines.push(`\n=== ${ticker} — Cash Flow ===`);
+            lines.push(['Metric', ...years].join(','));
+            if (data.cashflow) {
+                Object.keys(data.cashflow[years[0]] || {}).forEach(key => {
+                    const row = [this.labelFromKey(key)];
+                    years.forEach(y => row.push(data.cashflow[y]?.[key] ?? ''));
+                    lines.push(row.join(','));
+                });
+            }
+
+            // Ratios
+            if (data.ratios) {
+                const pillars = ['profitability', 'solvency', 'liquidity', 'activity', 'valuation'];
+                pillars.forEach(p => {
+                    const pillar = data.ratios[p];
+                    if (!pillar) return;
+                    lines.push(`\n=== ${ticker} — ${pillar.title} ===`);
+                    lines.push(['Metric', ...years].join(','));
+                    pillar.metrics.forEach(m => {
+                        const row = [m.name];
+                        years.forEach(y => {
+                            const val = pillar.data[y]?.[m.key];
+                            row.push(val != null ? val : '');
+                        });
+                        lines.push(row.join(','));
+                    });
+                });
+            }
+        });
+
+        const csv = lines.join('\n');
+        this.downloadFile(csv, 'FinScope_Export.csv', 'text/csv');
+    },
+
+    /**
+     * Export all ticker data + ratios to Excel
+     */
+    exportExcel(allTickerData) {
+        if (typeof XLSX === 'undefined') {
+            showToast('SheetJS library not loaded. Cannot export Excel.', 'error');
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+
+        Object.entries(allTickerData).forEach(([ticker, data]) => {
+            const years = data.years || [];
+            const shortTicker = ticker.replace('.JK', '').substring(0, 12);
+
+            // Income Statement sheet
+            if (data.income) {
+                const rows = this.buildSheetRows(data.income, years);
+                const ws = XLSX.utils.aoa_to_sheet([['Metric', ...years], ...rows]);
+                this.applyColumnWidths(ws, years.length + 1);
+                XLSX.utils.book_append_sheet(wb, ws, `${shortTicker}_Income`.substring(0, 31));
+            }
+
+            // Balance Sheet
+            if (data.balance) {
+                const rows = this.buildSheetRows(data.balance, years);
+                const ws = XLSX.utils.aoa_to_sheet([['Metric', ...years], ...rows]);
+                this.applyColumnWidths(ws, years.length + 1);
+                XLSX.utils.book_append_sheet(wb, ws, `${shortTicker}_Balance`.substring(0, 31));
+            }
+
+            // Cash Flow
+            if (data.cashflow) {
+                const rows = this.buildSheetRows(data.cashflow, years);
+                const ws = XLSX.utils.aoa_to_sheet([['Metric', ...years], ...rows]);
+                this.applyColumnWidths(ws, years.length + 1);
+                XLSX.utils.book_append_sheet(wb, ws, `${shortTicker}_CashFlow`.substring(0, 31));
+            }
+
+            // Ratios
+            if (data.ratios) {
+                const ratioRows = [];
+                const pillars = ['profitability', 'solvency', 'liquidity', 'activity', 'valuation'];
+                pillars.forEach(p => {
+                    const pillar = data.ratios[p];
+                    if (!pillar) return;
+                    ratioRows.push([pillar.title]);
+                    pillar.metrics.forEach(m => {
+                        const row = [m.name];
+                        years.forEach(y => {
+                            const val = pillar.data[y]?.[m.key];
+                            row.push(val != null ? val : '');
+                        });
+                        ratioRows.push(row);
+                    });
+                    ratioRows.push([]);
+                });
+                const ws = XLSX.utils.aoa_to_sheet([['Metric', ...years], ...ratioRows]);
+                this.applyColumnWidths(ws, years.length + 1);
+                XLSX.utils.book_append_sheet(wb, ws, `${shortTicker}_Ratios`.substring(0, 31));
+            }
+        });
+
+        XLSX.writeFile(wb, 'FinScope_Export.xlsx');
+    },
+
+    /**
+     * Export selected data into a single merged sheet mimicking the requested screenshot layout
+     */
+    customExcelExport(allTickerData, selectedLabels, macroData, formatSpec = 'en') {
+        if (typeof XLSX === 'undefined') {
+            showToast('SheetJS library not loaded. Cannot export Excel.', 'error');
+            return;
+        }
+
+        const headers = ['No', 'Tickers', 'Year Date', ...selectedLabels.map(label => {
+            const macroPercentLabels = [Lang.t('GDP Growth (YoY)'), Lang.t('Inflation (YoY)'), Lang.t('Unemployment'), Lang.t('Interest Rate')];
+            if (macroPercentLabels.includes(label)) {
+                return label.includes('%') ? label : label.replace('(YoY)', 'YoY').trim() + ' (%)';
+            }
+            return label;
+        })];
+        const rows = [headers];
+        const merges = [];
+
+        let currentRowIdx = 1;
+        let tickerNo = 1;
+
+        Object.entries(allTickerData).forEach(([ticker, data]) => {
+            const years = data.years || [];
+            if (years.length === 0) return;
+
+            const startRow = currentRowIdx;
+            const endRow = currentRowIdx + years.length - 1;
+
+            if (years.length > 1) {
+                // columns A(0), B(1) vertically merged
+                merges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } });
+                merges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } });
+            }
+
+            years.forEach((y, idx) => {
+                const rowParams = [];
+                
+                if (idx === 0) {
+                    rowParams.push(tickerNo);
+                    rowParams.push(ticker.replace('.JK', ''));
+                } else {
+                    rowParams.push('');
+                    rowParams.push('');
+                }
+
+                rowParams.push(y);
+
+                selectedLabels.forEach(label => {
+                    let foundVal = undefined;
+                    
+                    // --- Macro Data Matching ---
+                    const macroMapping = {
+                        [Lang.t('GDP Growth (YoY)')]: 'gdp',
+                        [Lang.t('Inflation (YoY)')]: 'inflation',
+                        [Lang.t('Unemployment')]: 'unemployment',
+                        [Lang.t('Interest Rate')]: 'interestRate',
+                        [Lang.t('USD/IDR Exchange')]: 'usdIdr',
+                        [Lang.t('IHSG Index')]: 'ihsg'
+                    };
+
+                    if (macroMapping[label]) {
+                        const mKey = macroMapping[label];
+                        if (macroData && macroData[mKey] && macroData[mKey].history) {
+                            const entry = macroData[mKey].history.find(h => h.year == y);
+                            if (entry && entry.value !== undefined && entry.value !== null) {
+                                if (['gdp', 'inflation', 'unemployment', 'interestRate'].includes(mKey)) {
+                                    if (formatSpec === 'id') {
+                                        foundVal = entry.value.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    } else {
+                                        foundVal = entry.value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    }
+                                } else if (mKey === 'ihsg') {
+                                    if (formatSpec === 'id') {
+                                        foundVal = Number(entry.value).toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    } else {
+                                        foundVal = Number(entry.value).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    }
+                                } else {
+                                    foundVal = entry.value; 
+                                }
+                            } else {
+                                foundVal = '-';
+                            }
+                        } else {
+                            foundVal = '-';
+                        }
+                    } else {
+                        // --- Financial Data Matching ---
+                        const findInBlock = (block) => {
+                            if (!block || !block[y]) return undefined;
+                            for (const [key, v] of Object.entries(block[y])) {
+                                if (this.labelFromKey(key) === label) return v;
+                            }
+                            return undefined;
+                        };
+
+                        foundVal = findInBlock(data.income);
+                        if (foundVal === undefined) foundVal = findInBlock(data.balance);
+                        if (foundVal === undefined) foundVal = findInBlock(data.cashflow);
+                        if (foundVal === undefined) foundVal = findInBlock(data.keystats);
+                        
+                        // Specific override for "Stock Price" using market cap / shares
+                        if (foundVal === undefined && label === 'Stock Price') {
+                            const k = data.keystats && data.keystats[y];
+                            if (k && k.marketCapitalization && k.numberOfShares) {
+                                foundVal = k.marketCapitalization / k.numberOfShares;
+                            }
+                        }
+
+                        if (foundVal === undefined && data.ratios) {
+                            for (const pillar of ['profitability', 'solvency', 'liquidity', 'activity', 'valuation']) {
+                                const p = data.ratios[pillar];
+                                if (!p) continue;
+                                const metric = p.metrics.find(m => m.name === label);
+                                if (metric) {
+                                    foundVal = p.data[y] ? p.data[y][metric.key] : undefined;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (foundVal !== undefined && foundVal !== null && foundVal !== '-') {
+                        if (typeof foundVal === 'number') {
+                            if (formatSpec === 'id') {
+                                foundVal = foundVal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+                            } else {
+                                foundVal = foundVal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+                            }
+                        }
+                    }
+
+                    rowParams.push(foundVal !== undefined && foundVal !== null ? foundVal : '-');
+                });
+
+                rows.push(rowParams);
+                currentRowIdx++;
+            });
+
+            tickerNo++;
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        if (merges.length) ws['!merges'] = merges;
+        
+        // --- Apply Styling (requires xlsx-js-style library) ---
+        const borderStyle = { 
+            top: { style: "thin", color: { rgb: "000000" } }, 
+            bottom: { style: "thin", color: { rgb: "000000" } }, 
+            left: { style: "thin", color: { rgb: "000000" } }, 
+            right: { style: "thin", color: { rgb: "000000" } } 
+        };
+
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cellRef = XLSX.utils.encode_cell({c: C, r: R});
+                if (!ws[cellRef]) ws[cellRef] = { t: "s", v: "" };
+
+                const cell = ws[cellRef];
+                
+                // Base style
+                let cellStyle = { 
+                    border: borderStyle,
+                    alignment: { vertical: "center", horizontal: "center" },
+                    font: { name: "Arial", sz: 10 }
+                };
+
+                // Conditional styling
+                if (R === 0) {
+                    // Header row
+                    cellStyle.font = { name: "Arial", sz: 10, bold: true };
+                } else if (C === 0 || C === 1) {
+                    // Ticker NO and Ticker Symbol column
+                    cellStyle.font = { name: "Arial", sz: 10, bold: true };
+                }
+
+                cell.s = cellStyle;
+            }
+        }
+        // -----------------------------------------------------
+
+        const wscols = [
+            { wch: 6 },  // No
+            { wch: 14 }, // Tickers
+            { wch: 12 }, // Year Date
+        ];
+        selectedLabels.forEach(() => wscols.push({ wch: 20 }));
+        ws['!cols'] = wscols;
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Analysis Data");
+        XLSX.writeFile(wb, 'FinScope_Custom_Export.xlsx');
+    },
+
+    buildSheetRows(statementByYear, years) {
+        const allKeys = new Set();
+        years.forEach(y => {
+            if (statementByYear[y]) Object.keys(statementByYear[y]).forEach(k => allKeys.add(k));
+        });
+        
+        const rows = [];
+        allKeys.forEach(key => {
+            const row = [this.labelFromKey(key)];
+            years.forEach(y => row.push(statementByYear[y]?.[key] ?? ''));
+            rows.push(row);
+        });
+        return rows;
+    },
+
+    applyColumnWidths(ws, cols) {
+        ws['!cols'] = Array.from({ length: cols }, (_, i) => ({ wch: i === 0 ? 35 : 18 }));
+    },
+
+    labelFromKey(key) {
+        return Lang.labelFromKey(key);
+    },
+
+    downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+};
+
+;
+/* ========================================
+   FinScope IDX — Client-Side XLSX Parser
+   Port of idx_parser.py → JavaScript (SheetJS)
+   ======================================== */
+
+const IDXParser = {
+
+    /**
+     * Parse an IDX Financial Statement XLSX file.
+     * @param {ArrayBuffer} arrayBuffer - Raw XLSX file bytes
+     * @param {boolean} usePriorYear - If true, read PriorYear column instead of CurrentYear
+     * @returns {object|null} { balance, income, cashflow } each with { data, labels, sections }
+     */
+    parse(arrayBuffer, usePriorYear = false) {
+        let wb;
+        try {
+            wb = XLSX.read(arrayBuffer, { type: 'array' });
+        } catch (e) {
+            console.warn('[IDXParser] Error reading XLSX:', e);
+            return null;
+        }
+
+        const sheets = wb.SheetNames;
+
+        // Helper: read a sheet as a 2D array of raw values
+        const readRows = (sheetName, maxRows) => {
+            const ws = wb.Sheets[sheetName];
+            if (!ws) return [];
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, blankrows: true });
+            if (maxRows !== undefined) return rows.slice(0, maxRows);
+            return rows;
+        };
+
+        // --- Identify General Information sheet ---
+        const genInfoSheet = sheets.find(s => s.startsWith('100') || s === '1000000') || null;
+
+        // --- Universal sheet detection (all IDX XBRL Taxonomy sectors) ---
+        const BS_PREFIXES = ['121', '2', '42'];
+        const IS_PREFIXES = ['131', '132', '3', '43'];
+        const CF_PREFIXES = ['151', '45', '51'];
+
+        const BS_KEYWORDS = ['financial position', 'posisi keuangan', 'neraca', 'balance sheet',
+            'statement of financial position', 'laporan posisi keuangan'];
+        const IS_KEYWORDS = ['profit or loss', 'laba rugi', 'income statement', 'comprehensive income',
+            'pendapatan komprehensif', 'laporan laba', 'statement of profit'];
+        const CF_KEYWORDS = ['cash flow', 'arus kas', 'statement of cash flows', 'laporan arus kas'];
+
+        const findAllSheets = (prefixes, keywords) => {
+            const candidates = [];
+
+            // Step 1: Prefix matching
+            for (const s of sheets) {
+                if (s.endsWith('PY')) continue;
+                if (prefixes.some(p => s.startsWith(p)) && !candidates.includes(s)) {
+                    candidates.push(s);
+                }
+            }
+
+            // Step 2: Keyword fallback (only if no prefix matches)
+            if (candidates.length > 0) return candidates;
+
+            for (const s of sheets) {
+                if (candidates.includes(s) || s.endsWith('PY') || s.startsWith('100')) continue;
+                try {
+                    const peek = readRows(s, 5);
+                    const text = peek.map(row =>
+                        row.filter(v => typeof v === 'string').map(v => v.toLowerCase()).join(' ')
+                    ).join(' ');
+                    if (keywords.some(kw => text.includes(kw))) {
+                        candidates.push(s);
+                    }
+                } catch (e) { /* skip */ }
+            }
+            return candidates;
+        };
+
+        const bsCandidates = findAllSheets(BS_PREFIXES, BS_KEYWORDS);
+        const isCandidates = findAllSheets(IS_PREFIXES, IS_KEYWORDS);
+        const cfCandidates = findAllSheets(CF_PREFIXES, CF_KEYWORDS);
+
+        // --- Detect scale multiplier and currency conversion ---
+        let scaleMultiplier = 1;
+        let currencyRate = 1;
+        let currencyName = 'IDR';
+        let companyName = null;
+
+        if (genInfoSheet) {
+            try {
+                const genRows = readRows(genInfoSheet);
+                for (const row of genRows) {
+                    for (const cell of row) {
+                        if (typeof cell !== 'string') continue;
+                        const lc = cell.toLowerCase();
+
+                        // Scale detection
+                        if (lc.includes('jutaan') || lc.includes('millions')) {
+                            scaleMultiplier = 1_000_000;
+                        } else if (lc.includes('miliaran') || lc.includes('milyaran') || lc.includes('billions')) {
+                            scaleMultiplier = 1_000_000_000;
+                        } else if (lc.includes('ribuan') || lc.includes('thousands')) {
+                            scaleMultiplier = 1_000;
+                        }
+                        
+                        // Company name detection
+                        if (lc.includes('nama entitas') || lc.includes('entity name') || lc.includes('nama perusahaan') || lc.includes('company name')) {
+                            for(let cvIdx = 0; cvIdx < row.length; cvIdx++) {
+                                const cv = row[cvIdx];
+                                if (typeof cv === 'string' && cv.trim() && cv !== cell && !cv.startsWith('100') && !cv.toLowerCase().includes('entity name')) {
+                                    companyName = cv.trim();
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Currency detection
+                        if (lc.includes('mata uang pelaporan') || lc.includes('presentation currency')) {
+                            for (const cv of row) {
+                                if (typeof cv !== 'string') continue;
+                                const cvl = cv.toLowerCase();
+                                if (cvl.includes('dollar') || cvl.includes('usd')) currencyName = 'USD';
+                                else if (cvl.includes('euro') || cvl.includes('eur')) currencyName = 'EUR';
+                                else if (cvl.includes('yen') || cvl.includes('jpy')) currencyName = 'JPY';
+                            }
+                        }
+
+                        // Conversion rate
+                        if (lc.includes('kurs konversi') || lc.includes('conversion rate')) {
+                            for (const cv of row) {
+                                if (typeof cv === 'number' && !isNaN(cv) && cv > 0) {
+                                    currencyRate = cv;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (currencyName === 'IDR') currencyRate = 1;
+
+                console.log(`[IDXParser] Scale: ${scaleMultiplier}`);
+                if (currencyName !== 'IDR') {
+                    console.log(`[IDXParser] Currency: ${currencyName}, rate: ${currencyRate.toLocaleString()}`);
+                }
+            } catch (e) {
+                console.warn('[IDXParser] Gen info error:', e);
+            }
+        }
+
+        // --- Smart scale validation (median sampling) ---
+        if (scaleMultiplier > 1) {
+            const checkSheet = bsCandidates[0] || isCandidates[0] || cfCandidates[0];
+            if (checkSheet) {
+                try {
+                    const checkRows = readRows(checkSheet);
+                    const sampleValues = [];
+                    for (let i = 0; i < Math.min(50, checkRows.length); i++) {
+                        const row = checkRows[i];
+                        if (row && row.length > 1) {
+                            const v = row[1]; // Column 1 = typically CurrentYear
+                            if (typeof v === 'number' && !isNaN(v) && Math.abs(v) > 0) {
+                                sampleValues.push(Math.abs(v));
+                            }
+                        }
+                    }
+                    if (sampleValues.length > 0) {
+                        sampleValues.sort((a, b) => a - b);
+                        const medianVal = sampleValues[Math.floor(sampleValues.length / 2)];
+                        if (medianVal > 1_000_000_000) {
+                            console.warn(`[IDXParser] Scale override: text says ${scaleMultiplier} but median=${medianVal.toLocaleString()} → using 1`);
+                            scaleMultiplier = 1;
+                        } else {
+                            console.log(`[IDXParser] Scale validated: median=${medianVal.toLocaleString()}, using ${scaleMultiplier}`);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[IDXParser] Scale validation error:', e);
+                }
+            }
+        }
+
+        // --- Sheet extractor ---
+        const extractSheet = (sheetName) => {
+            const data = {};
+            const labels = {};
+            const sections = [];
+            let currentItems = [];
+
+            if (!sheetName) return { data, labels, sections };
+
+            let rows;
+            try {
+                rows = readRows(sheetName);
+            } catch (e) {
+                console.warn(`[IDXParser] Error reading sheet ${sheetName}:`, e);
+                return { data, labels, sections };
+            }
+
+            if (!rows.length) return { data, labels, sections };
+
+            const numCols = Math.max(...rows.slice(0, 20).map(r => r ? r.length : 0));
+
+            // Detect column roles from header row
+            let currentCol = null;
+            let priorCol = null;
+            let headerRowIdx = -1;
+
+            for (let ridx = 0; ridx < Math.min(10, rows.length); ridx++) {
+                const row = rows[ridx];
+                if (!row) continue;
+                for (let ci = 0; ci < row.length; ci++) {
+                    const cell = row[ci];
+                    if (typeof cell !== 'string') continue;
+                    const cl = cell.toLowerCase().trim();
+                    if (cl.startsWith('currentyear')) {
+                        currentCol = ci;
+                        headerRowIdx = ridx;
+                    } else if (cl.includes('prioryear') || cl.includes('priorendyear')) {
+                        priorCol = ci;
+                    }
+                }
+            }
+
+            // Fallback defaults
+            if (currentCol === null) currentCol = 1;
+            if (priorCol === null && numCols >= 4) priorCol = 2;
+
+            const valCol = (usePriorYear && priorCol !== null) ? priorCol : currentCol;
+
+            // Robust en_col detection: rightmost column with string content
+            let enCol = numCols - 1;
+            const maxColToCheck = priorCol !== null ? Math.max(currentCol, priorCol) : currentCol;
+
+            for (let cid = numCols - 1; cid > maxColToCheck; cid--) {
+                let stringCount = 0;
+                for (let ridx = headerRowIdx + 1; ridx < Math.min(headerRowIdx + 21, rows.length); ridx++) {
+                    const row = rows[ridx];
+                    if (!row || cid >= row.length) continue;
+                    const cv = row[cid];
+                    if (typeof cv === 'string' && cv.trim() && !cv.trim().startsWith('[')) {
+                        stringCount++;
+                    }
+                }
+                if (stringCount >= 2) {
+                    enCol = cid;
+                    break;
+                }
+            }
+
+            // Process data rows
+            for (let ridx = headerRowIdx + 1; ridx < rows.length; ridx++) {
+                const row = rows[ridx];
+                if (!row) continue;
+
+                // Indonesian label (column 0)
+                let idLabel = null;
+                if (row[0] != null && typeof row[0] === 'string') {
+                    idLabel = row[0].trim();
+                }
+
+                // English label (en_col)
+                let enLabel = null;
+                if (enCol < row.length && row[enCol] != null && typeof row[enCol] === 'string') {
+                    enLabel = row[enCol].trim();
+                }
+
+                if (!idLabel && !enLabel) continue;
+
+                // Skip sheet descriptor rows
+                if (idLabel && idLabel.startsWith('[')) continue;
+
+                // Get raw value from chosen column
+                const rawVal = (valCol < row.length) ? row[valCol] : null;
+
+                // Robust numeric detection: handles accounting negatives "(768)" and string commas "25,305"
+                let floatVal = null;
+                if (typeof rawVal === 'number' && !isNaN(rawVal)) {
+                    floatVal = rawVal;
+                } else if (typeof rawVal === 'string') {
+                    let s = rawVal.trim();
+                    let isNeg = false;
+                    if (s.startsWith('(') && s.endsWith(')')) {
+                        isNeg = true;
+                        s = s.slice(1, -1).trim();
+                    }
+                    s = s.replace(/,/g, '');
+                    const parsed = parseFloat(s);
+                    if (!isNaN(parsed)) {
+                        floatVal = isNeg ? -parsed : parsed;
+                    }
+                }
+
+                const hasValue = floatVal !== null;
+
+                if (hasValue && (idLabel || enLabel)) {
+                    // --- DATA ROW ---
+                    const key = enLabel || idLabel;
+                    const labelId = idLabel || enLabel;
+                    const labelEn = enLabel || idLabel;
+
+                    let val = floatVal;
+
+                    // Don't scale per-share metrics
+                    const isPerShare = (labelId.toLowerCase().includes('per saham')) ||
+                        (labelEn.toLowerCase().includes('per share'));
+                    if (!isPerShare) {
+                        val *= scaleMultiplier * currencyRate;
+                    }
+
+                    // Handle duplicate keys
+                    let uniqueKey = key;
+                    let counter = 2;
+                    while (uniqueKey in data) {
+                        uniqueKey = `${key} (${counter})`;
+                        counter++;
+                    }
+
+                    data[uniqueKey] = val;
+                    labels[uniqueKey] = { id: labelId, en: labelEn };
+                    currentItems.push(uniqueKey);
+
+                } else if (idLabel) {
+                    // --- SECTION HEADER ---
+                    currentItems = [];
+                    sections.push({
+                        id: idLabel,
+                        en: enLabel || idLabel,
+                        items: currentItems,
+                    });
+                }
+            }
+
+            return { data, labels, sections };
+        };
+
+        // --- Best sheet selection ---
+        const extractBestSheet = (candidates) => {
+            let bestD = {}, bestL = {}, bestS = [], maxLen = -1, bestName = null;
+            for (const s of candidates) {
+                const { data: d, labels: l, sections: sec } = extractSheet(s);
+                if (Object.keys(d).length > maxLen) {
+                    maxLen = Object.keys(d).length;
+                    bestD = d; bestL = l; bestS = sec; bestName = s;
+                }
+            }
+            return { data: bestD, labels: bestL, sections: bestS, sheetName: bestName };
+        };
+
+        const bs = extractBestSheet(bsCandidates);
+        const is = extractBestSheet(isCandidates);
+        const cf = extractBestSheet(cfCandidates);
+
+        console.log(`[IDXParser] Best Sheets: BS=${bs.sheetName}, IS=${is.sheetName}, CF=${cf.sheetName}`);
+
+        return {
+            companyName,
+            balance: { data: bs.data, labels: bs.labels, sections: bs.sections },
+            income: { data: is.data, labels: is.labels, sections: is.sections },
+            cashflow: { data: cf.data, labels: cf.labels, sections: cf.sections },
+        };
+    },
+
+    /**
+     * Full pipeline: download multiple years via CF Worker relay, parse, and merge.
+     * Replicates server.py handle_api_proxy + merge_statement logic.
+     *
+     * @param {string} ticker - e.g. "BBRI.JK" or "BBRI"
+     * @param {number} startYear
+     * @param {number} endYear
+     * @param {string} workerBase - CF Worker base URL
+     * @param {function} onProgress - callback(completedCount, totalCount)
+     * @returns {object|null} Merged data compatible with AppState.allData[ticker]
+     */
+    async fetchAndParse(ticker, startYear, endYear, workerBase, onProgress) {
+        // Strip .JK suffix
+        const cleanTicker = ticker.split('.')[0].toUpperCase().trim();
+
+        const allYears = [];
+        for (let y = startYear; y <= endYear; y++) allYears.push(y);
+
+        // Need files for [startYear..endYear] + endYear+1 (for PriorYear strategy)
+        const neededYears = [...new Set([...allYears, endYear + 1])];
+
+        // --- Phase 1: Parallel download ---
+        const downloadCache = {}; // year -> ArrayBuffer | null
+        let completed = 0;
+
+        const downloadPromises = neededYears.map(async (yr) => {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout per file
+
+                const resp = await fetch(`${workerBase}/api/idx?ticker=${cleanTicker}&year=${yr}`, {
+                    signal: controller.signal,
+                });
+                clearTimeout(timeoutId);
+
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    // Validate XLSX magic bytes
+                    const magic = new Uint8Array(buf.slice(0, 4));
+                    if (magic[0] === 0x50 && magic[1] === 0x4B) {
+                        downloadCache[yr] = buf;
+                    } else {
+                        console.warn(`[IDXParser] ${cleanTicker} ${yr}: response is not XLSX`);
+                        downloadCache[yr] = null;
+                    }
+                } else {
+                    downloadCache[yr] = null;
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') {
+                    console.warn(`[IDXParser] ${cleanTicker} ${yr}: download timed out`);
+                } else {
+                    console.warn(`[IDXParser] ${cleanTicker} ${yr}: download error:`, e.message);
+                }
+                downloadCache[yr] = null;
+            } finally {
+                completed++;
+                if (onProgress) onProgress(completed, neededYears.length);
+            }
+        });
+
+        await Promise.all(downloadPromises);
+
+        // --- Phase 2: Parse & assemble (sequential, CPU-bound in browser) ---
+        const yearsData = [];
+
+        const isValidData = (d) => {
+            if (!d) return false;
+            for (const k of ['income', 'balance', 'cashflow']) {
+                if (d[k] && Object.keys(d[k].data).length > 0) return true;
+            }
+            return false;
+        };
+
+        for (const yr of allYears) {
+            let parsedData = null;
+            const nextYr = yr + 1;
+
+            // Strategy 1: Read PriorYear from Y+1 file
+            if (downloadCache[nextYr]) {
+                const pdTemp = this.parse(downloadCache[nextYr], true);
+                if (isValidData(pdTemp)) {
+                    parsedData = pdTemp;
+                    console.log(`[IDXParser] Year ${yr}: from ${nextYr} file PriorYear ✓`);
+                }
+            }
+
+            // Strategy 2: Read CurrentYear from Y file
+            if (!parsedData && downloadCache[yr]) {
+                const pdTemp2 = this.parse(downloadCache[yr], false);
+                if (isValidData(pdTemp2)) {
+                    parsedData = pdTemp2;
+                    console.log(`[IDXParser] Year ${yr}: from ${yr} file CurrentYear ✓`);
+                }
+            }
+
+            if (parsedData) {
+                parsedData.year = yr;
+                yearsData.push(parsedData);
+            } else {
+                console.warn(`[IDXParser] Year ${yr}: no data available`);
+            }
+        }
+
+        if (yearsData.length === 0) return null;
+
+        // --- Phase 3: Merge into AppState-compatible format ---
+        return this._mergeYearsData(yearsData);
+    },
+
+    /**
+     * Merge multi-year parsed data into the format expected by the renderer.
+     * Replicates server.py merge_statement logic.
+     */
+    _mergeYearsData(yearsData) {
+        const typeMap = { income: 'INCOME_STATEMENT', balance: 'BALANCE_SHEET', cashflow: 'CASH_FLOW' };
+        const result = { statements: [] };
+        
+        const companyName = yearsData.map(yd => yd.companyName).find(Boolean) || null;
+        if (companyName) result.companyName = companyName;
+
+        for (const [key, stype] of Object.entries(typeMap)) {
+            const allData = [];
+            const allLabels = {};
+            const sectionCandidates = [];
+
+            for (const yd of yearsData) {
+                const yr = yd.year;
+                const stmt = yd[key];
+                const d = { ...stmt.data, calendarYear: yr, fiscalYear: yr };
+                allData.push(d);
+                Object.assign(allLabels, stmt.labels);
+                sectionCandidates.push(stmt.sections);
+            }
+
+            // Use section structure with most items covered
+            let best = [];
+            if (sectionCandidates.length > 0) {
+                best = sectionCandidates.reduce((a, b) => {
+                    const aCount = a.reduce((sum, sec) => sum + sec.items.length, 0);
+                    const bCount = b.reduce((sum, sec) => sum + sec.items.length, 0);
+                    return bCount > aCount ? b : a;
+                });
+            }
+
+            // Find uncovered items
+            const covered = new Set();
+            for (const sec of best) {
+                for (const item of sec.items) covered.add(item);
+            }
+            const allKeys = new Set();
+            for (const d of allData) {
+                for (const k of Object.keys(d)) {
+                    if (k !== 'calendarYear' && k !== 'fiscalYear') allKeys.add(k);
+                }
+            }
+            const uncovered = [...allKeys].filter(k => !covered.has(k));
+            if (uncovered.length > 0) {
+                best = [...best, { id: 'Lainnya', en: 'Other', items: uncovered.sort() }];
+            }
+
+            result.statements.push({
+                type: stype,
+                data: allData,
+                labels: allLabels,
+                sections: best,
+            });
+        }
+
+        return result;
+    },
+};
+
+;
+/* ========================================
+   FinScope — Main Application (Web Version)
+   Client-side parsing via IDXParser + CF Worker CORS relay
+   ======================================== */
+
+// ─── Configuration ───
+// IMPORTANT: Replace this with your actual Cloudflare Worker URL after deployment!
+const WORKER_BASE = 'https://finscope-relay.mrm-finscope.workers.dev';
+
+// ─── State ───
+const AppState = {
+    allData: {},          // { ticker: { income, balance, cashflow, keystats, years, ratios } }
+    activeTicker: null,
+    activeTab: 'income',
+    macroData: null,
+    customRatios: []
+};
+
+// ─── DOM References ───
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+const DOM = {
+    form: $('#queryForm'),
+    tickerInput: $('#tickerInput'),
+    startYear: $('#startYear'),
+    endYear: $('#endYear'),
+    fetchBtn: $('#fetchBtn'),
+    loadingOverlay: $('#loadingOverlay'),
+    toastContainer: $('#toastContainer'),
+    resultsArea: $('#resultsArea'),
+    emptyState: $('#emptyState'),
+    incompleteDataAlert: $('#incompleteDataAlert'),
+    incompleteDataList: $('#incompleteDataList'),
+    tickerTabs: $('#tickerTabs'),
+    tabContent: $('#tabContent'),
+    btnCustomExport: $('#btnCustomExport'),
+    exportModal: $('#exportModal'),
+    btnCloseModal: $('#btnCloseModal'),
+    checkAllMetrics: $('#checkAllMetrics'),
+    metricsGrid: $('#metricsGrid'),
+    btnDoCustomExport: $('#btnDoCustomExport'),
+    exportFormatToggle: $('#exportFormatToggle'),
+    
+    // Auth DOM
+    loginPage: $('#loginPage'),
+    appShell: $('#appShell'),
+    loginForm: $('#loginForm'),
+    usernameInput: $('#usernameInput'),
+    passwordInput: $('#passwordInput'),
+    btnLogin: $('#btnLogin'),
+    btnPricingInfo: $('#btnPricingInfo'),
+    pricingModal: $('#pricingModal'),
+    btnClosePricingModal: $('#btnClosePricingModal')
+};
+
+
+// ─── Client-Side Data Fetching (via IDXParser + CF Worker) ───
+async function fetchFinancials(ticker, startYear, endYear) {
+    // IDXParser.fetchAndParse handles: download via CF Worker → parse with SheetJS → merge
+    const result = await IDXParser.fetchAndParse(ticker, startYear, endYear, WORKER_BASE);
+    
+    if (!result) {
+        throw new Error(`No IDX data found for "${ticker}" between ${startYear}-${endYear}`);
+    }
+
+    return result;
+}
+
+
+// ─── Data Parser ───
+// Metadata keys to exclude from financial data display
+const META_KEYS = new Set([
+    'date', 'symbol', 'reportedCurrency', 'cik', 'fillingDate',
+    'acceptedDate', 'period', 'link', 'finalLink', 'calendarYear', 'fiscalYear',
+]);
+
+function parseAPIResponse(json) {
+    const result = {
+        income: {},
+        balance: {},
+        cashflow: {},
+        keystats: {},
+        years: [],
+        // Bilingual labels and section structures from parser
+        incomeLabels: {},
+        incomeSections: [],
+        balanceLabels: {},
+        balanceSections: [],
+        cashflowLabels: {},
+        cashflowSections: [],
+        companyName: json ? json.companyName : null,
+    };
+
+    if (!json || !json.statements) return result;
+
+    const typeMap = {
+        'INCOME_STATEMENT': 'income',
+        'BALANCE_SHEET': 'balance',
+        'CASH_FLOW': 'cashflow',
+        'KEY_STATS': 'keystats',
+    };
+
+    const yearSet = new Set();
+
+    json.statements.forEach(stmt => {
+        const targetKey = typeMap[stmt.type];
+        if (!targetKey || !stmt.data) return;
+
+        // Store labels and sections
+        if (stmt.labels) {
+            result[targetKey + 'Labels'] = stmt.labels;
+            if (typeof Lang !== 'undefined') {
+                if (!Lang.metricLabels.en) Lang.metricLabels.en = {};
+                Object.entries(stmt.labels).forEach(([k, vals]) => {
+                    if (vals.id) Lang.metricLabels.id[k] = vals.id;
+                    if (vals.en) Lang.metricLabels.en[k] = vals.en;
+                });
+            }
+        }
+        if (stmt.sections) result[targetKey + 'Sections'] = stmt.sections;
+
+        stmt.data.forEach(entry => {
+            const year = entry.calendarYear || entry.fiscalYear;
+            if (!year) return;
+            
+            yearSet.add(String(year));
+            
+            if (!result[targetKey][year]) result[targetKey][year] = {};
+            
+            Object.entries(entry).forEach(([key, val]) => {
+                if (META_KEYS.has(key)) return;
+                result[targetKey][year][key] = val;
+            });
+        });
+    });
+
+    result.years = Array.from(yearSet).sort();
+    return result;
+}
+
+// ─── Dynamic Table Renderer (sections & labels from IDX Excel) ───
+const STATEMENT_TITLES = {
+    income: 'Income Statement',
+    balance: 'Balance Sheet',
+    cashflow: 'Cash Flow Statement',
+};
+
+function formatCurrency(val) {
+    if (val == null || val === '' || isNaN(val) || val === 0) return '-';
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    }).format(val);
+}
+
+function renderStatementTable(statementData, years, stmtType, labels, sections, companyName) {
+    const title = STATEMENT_TITLES[stmtType] || stmtType;
+    const cardTitleDisplay = companyName ? `${companyName}` : Lang.t(title);
+
+    if (!statementData || !years.length) {
+        return `<div style="text-align:center;padding:40px;color:var(--text-muted);">${Lang.t('No data available.')}</div>`;
+    }
+
+    // Collect all available keys that have at least one non-null, non-zero value across all years
+    const availableKeys = new Set();
+    years.forEach(y => {
+        if (statementData[y]) {
+            Object.keys(statementData[y]).forEach(k => {
+                const v = statementData[y][k];
+                if (v != null && v !== '' && !isNaN(v) && v !== 0) availableKeys.add(k);
+            });
+        }
+    });
+
+    // Helper: get display label for a key using bilingual labels
+    function getLabel(key) {
+        if (labels && labels[key]) {
+            const isID = typeof Lang !== 'undefined' && Lang.current === 'id';
+            return isID ? labels[key].id : labels[key].en;
+        }
+        return key;
+    }
+
+    // Helper: detect per-share items that should not use currency formatting
+    function isPerShare(key) {
+        const lk = key.toLowerCase();
+        return lk.includes('per share') || lk.includes('per saham');
+    }
+
+    let html = `
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title">${cardTitleDisplay} <span class="badge">${years.length} ${Lang.t('years')}</span></span>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>${Lang.t(title)}</th>`;
+    years.forEach(y => { html += `<th>${y}</th>`; });
+    html += `</tr></thead><tbody>`;
+
+    const rendered = new Set();
+
+    // Render by dynamic sections
+    if (sections && sections.length) {
+        sections.forEach(sec => {
+            const secLabel = (typeof Lang !== 'undefined' && Lang.current === 'id') ? sec.id : sec.en;
+            const sectionKeys = (sec.items || []).filter(k => availableKeys.has(k));
+            if (!sectionKeys.length) return;
+
+            html += `<tr class="section-header"><td colspan="${years.length + 1}">${secLabel}</td></tr>`;
+
+            sectionKeys.forEach(key => {
+                const label = getLabel(key);
+                html += `<tr><td>${label}</td>`;
+                years.forEach(y => {
+                    const val = statementData[y]?.[key];
+                    let formatted, cls = '';
+
+                    if (isPerShare(key) && val != null) {
+                        formatted = typeof val === 'number' ? val.toLocaleString('id-ID', { maximumFractionDigits: 2 }) : val;
+                    } else {
+                        formatted = formatCurrency(val);
+                    }
+
+                    if (val != null && typeof val === 'number' && val < 0) cls = 'val-negative';
+                    html += `<td class="${cls}">${formatted}</td>`;
+                });
+                html += `</tr>`;
+                rendered.add(key);
+            });
+        });
+    }
+
+    // Render remaining keys not covered by any section
+    const remaining = Array.from(availableKeys).filter(k => !rendered.has(k));
+    if (remaining.length) {
+        html += `<tr class="section-header"><td colspan="${years.length + 1}">${Lang.t('Other')}</td></tr>`;
+        remaining.forEach(key => {
+            const label = getLabel(key);
+            html += `<tr><td>${label}</td>`;
+            years.forEach(y => {
+                const val = statementData[y]?.[key];
+                const formatted = isPerShare(key) && val != null
+                    ? val.toLocaleString('id-ID', { maximumFractionDigits: 2 })
+                    : formatCurrency(val);
+                const cls = (val != null && typeof val === 'number' && val < 0) ? 'val-negative' : '';
+                html += `<td class="${cls}">${formatted}</td>`;
+            });
+            html += `</tr>`;
+        });
+    }
+
+    html += `</tbody></table></div></div>`;
+    return html;
+}
+
+function labelFromKey(key) {
+    return Lang.labelFromKey(key);
+}
+
+// ─── Custom Ratio Builder ───
+function renderCustomRatioBuilder() {
+    return `
+    <div class="ratio-builder-card" style="margin-bottom: 24px; padding: 20px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
+        <h3 style="margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary);">
+            <span style="font-size:1.3rem;">🛠️</span> ${Lang.t('Custom Ratio Builder')}
+        </h3>
+        <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+                <label>${Lang.t('Metric A')}</label>
+                <select id="customMetricA" class="metric-select" style="width:100%; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);"></select>
+            </div>
+            <div class="form-group" style="width: 80px;">
+                <label>${Lang.t('Operator')}</label>
+                <select id="customOperator" style="width:100%; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); text-align:center;">
+                    <option value="/">÷</option>
+                    <option value="*">×</option>
+                    <option value="+">+</option>
+                    <option value="-">-</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 200px;">
+                <label>${Lang.t('Metric B')}</label>
+                <select id="customMetricB" class="metric-select" style="width:100%; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);"></select>
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+                <label>${Lang.t('Ratio Name')}</label>
+                <input type="text" id="customRatioName" placeholder="${Lang.t('Custom Ratio')}" style="width:100%;">
+            </div>
+            <button id="btnBuildRatio" class="btn btn-primary" style="height: 42px;">${Lang.t('Build')}</button>
+        </div>
+    </div>
+    `;
+}
+
+function populateCustomRatioBuilder() {
+    const data = AppState.allData[AppState.activeTicker];
+    if (!data) return;
+    
+    const keys = new Set();
+    const categories = { 'Income Statement': 'income', 'Balance Sheet': 'balance', 'Cash Flow': 'cashflow' };
+    
+    const optionsHtml = [];
+    Object.entries(categories).forEach(([label, key]) => {
+        optionsHtml.push(`<optgroup label="${Lang.t(label)}">`);
+        data.years.forEach(y => {
+            if (data[key] && data[key][y]) {
+                Object.keys(data[key][y]).forEach(k => {
+                    if (!keys.has(k)) {
+                        keys.add(k);
+                        const displayLabel = data[`${key}Labels`] && data[`${key}Labels`][k] 
+                           ? (Lang.current==='id' ? data[`${key}Labels`][k].id : data[`${key}Labels`][k].en) 
+                           : k;
+                        optionsHtml.push(`<option value="${k}">${displayLabel}</option>`);
+                    }
+                });
+            }
+        });
+        optionsHtml.push(`</optgroup>`);
+    });
+    
+    const htmlObj = optionsHtml.join('');
+    if ($('#customMetricA')) $('#customMetricA').innerHTML = htmlObj;
+    if ($('#customMetricB')) $('#customMetricB').innerHTML = htmlObj;
+}
+
+// ─── UI Controllers ───
+function showLoading() { DOM.loadingOverlay.classList.remove('hidden'); }
+function hideLoading() { DOM.loadingOverlay.classList.add('hidden'); }
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            ${type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' : 
+              type === 'success' ? '<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>' : 
+              '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'}
+        </svg>
+        <span>${message}</span>
+    `;
+    DOM.toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 4500);
+}
+
+function renderTickerTabs() {
+    const tickers = Object.keys(AppState.allData);
+    if (tickers.length <= 1) {
+        DOM.tickerTabs.innerHTML = '';
+        DOM.tickerTabs.style.display = 'none';
+        return;
+    }
+
+    DOM.tickerTabs.style.display = 'flex';
+    DOM.tickerTabs.innerHTML = tickers.map(t => 
+        `<button class="ticker-tab ${t === AppState.activeTicker ? 'active' : ''}" data-ticker="${t}">${t}</button>`
+    ).join('');
+}
+
+function renderActiveTickerData() {
+    const data = AppState.allData[AppState.activeTicker];
+    if (!data) return;
+
+    const years = data.years;
+
+    // Render statement tables using dynamic sections/labels from IDX Excel
+    $('#incomeTab').innerHTML = renderStatementTable(data.income, years, 'income', data.incomeLabels, data.incomeSections, data.companyName);
+    $('#balanceTab').innerHTML = renderStatementTable(data.balance, years, 'balance', data.balanceLabels, data.balanceSections, data.companyName);
+    $('#cashflowTab').innerHTML = renderStatementTable(data.cashflow, years, 'cashflow', data.cashflowLabels, data.cashflowSections, data.companyName);
+
+    // Render ratios
+    const ratios = RatiosEngine.calculate(data);
+    data.ratios = ratios;
+    
+    let customRatiosHtml = '';
+    if (AppState.customRatios && AppState.customRatios.length > 0) {
+        customRatiosHtml = RatiosEngine.renderCustomRatios(AppState.customRatios, data, years);
+    }
+    
+    $('#ratiosTab').innerHTML = renderCustomRatioBuilder() + customRatiosHtml + RatiosEngine.renderRatios(ratios, years);
+    populateCustomRatioBuilder();
+}
+
+function switchTab(tabName) {
+    AppState.activeTab = tabName;
+    $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+    $$('.tab-pane').forEach(p => p.classList.remove('active'));
+    $(`#${tabName}Tab`).classList.add('active');
+
+    if (tabName === 'macro') {
+        DOM.resultsArea.classList.remove('hidden');
+        DOM.emptyState.classList.add('hidden');
+        DOM.tickerTabs.style.display = 'none';
+        if (AppState.macroData) {
+            renderMacroData(AppState.macroData);
+        } else {
+            $('#macroTab').innerHTML = `<div class="macro-loading"><div class="spinner" style="margin:0 auto 16px;"></div>${Lang.t('Loading macroeconomic data...')}</div>`;
+            fetchMacroData();
+        }
+    } else {
+        if (Object.keys(AppState.allData).length > 1) {
+            DOM.tickerTabs.style.display = 'flex';
+        }
+    }
+}
+
+function switchTicker(ticker) {
+    AppState.activeTicker = ticker;
+    renderTickerTabs();
+    renderActiveTickerData();
+}
+
+// ─── Main Form Handler ───
+async function handleSubmit(e) {
+    e.preventDefault();
+
+    const rawTickers = DOM.tickerInput.value.trim();
+    const startYear = parseInt(DOM.startYear.value);
+    const endYear = parseInt(DOM.endYear.value);
+
+    if (!rawTickers) {
+        showToast(Lang.t('Please enter at least one ticker symbol.'), 'error');
+        return;
+    }
+
+    if (startYear > endYear) {
+        showToast(Lang.t('Start year cannot be after end year.'), 'error');
+        return;
+    }
+
+    const tickers = rawTickers.split(/[\n,]+/).map(t => t.trim().toUpperCase()).filter(Boolean);
+    if (!tickers.length) {
+        showToast(Lang.t('No valid tickers provided.'), 'error');
+        return;
+    }
+
+    showLoading();
+    if (DOM.incompleteDataAlert) DOM.incompleteDataAlert.classList.add('hidden');
+
+    const loadingTextEl = DOM.loadingOverlay.querySelector('.loading-text');
+    const prevLoadingHtml = loadingTextEl ? loadingTextEl.innerHTML : '';
+    if (loadingTextEl) {
+        loadingTextEl.innerHTML = `${Lang.t('Loading')}<span class="dots"></span>`;
+    }
+    
+    // Update progress indicator text
+    const progressEl = DOM.loadingOverlay.querySelector('#loadingProgress');
+    if (progressEl) {
+        progressEl.textContent = `0 / ${tickers.length}`;
+    }
+
+    AppState.allData = {};
+    let successCount = 0;
+    let completedCount = 0;
+    
+    // Process tickers sequentially to avoid overwhelming CF Worker
+    const results = [];
+    for (const ticker of tickers) {
+        const result = await Promise.allSettled([
+            fetchFinancials(ticker, startYear, endYear)
+        ]);
+        results.push(result[0]);
+        completedCount++;
+        if (progressEl) progressEl.textContent = `${completedCount} / ${tickers.length}`;
+    }
+    
+    // Restore original loading text
+    if (loadingTextEl) loadingTextEl.innerHTML = prevLoadingHtml;
+
+    // Build expected years list
+    const expectedYears = [];
+    for (let y = startYear; y <= endYear; y++) expectedYears.push(String(y));
+    
+    const incompleteNotices = [];
+
+    results.forEach((result, i) => {
+        const ticker = tickers[i];
+        if (result.status === 'fulfilled') {
+            const parsed = parseAPIResponse(result.value);
+            if (parsed.years.length > 0) {
+                AppState.allData[ticker] = parsed;
+                successCount++;
+                const missingYears = expectedYears.filter(y => !parsed.years.includes(y));
+                if (missingYears.length > 0) {
+                    incompleteNotices.push({ ticker, msg: Lang.current === 'id' ? `Tahun tidak lengkap/hilang: ${missingYears.join(', ')}` : `Missing year(s): ${missingYears.join(', ')}` });
+                }
+            } else {
+                showToast(Lang.tf('no_data_for_ticker', { ticker }), 'error');
+                incompleteNotices.push({ ticker, msg: Lang.current === 'id' ? 'Gagal ditarik / tidak ada data sama sekali.' : 'No data retrieved for any requested years.' });
+            }
+        } else {
+            showToast(result.reason?.message || Lang.tf('error_fetching', { ticker }), 'error');
+            let errMsg = result.reason?.message || 'Unknown error';
+            incompleteNotices.push({ ticker, msg: Lang.current === 'id' ? `Error: ${errMsg}` : `Error: ${errMsg}` });
+        }
+    });
+
+    hideLoading();
+
+    if (incompleteNotices.length > 0) {
+        DOM.incompleteDataList.innerHTML = incompleteNotices.map(item => `<li><strong>${item.ticker}</strong>: <span style="color:var(--text-secondary);">${item.msg}</span></li>`).join('');
+        DOM.incompleteDataAlert.classList.remove('hidden');
+    } else {
+        DOM.incompleteDataAlert.classList.add('hidden');
+    }
+
+    if (successCount > 0) {
+        const firstTicker = Object.keys(AppState.allData)[0];
+        AppState.activeTicker = firstTicker;
+
+        DOM.emptyState.classList.add('hidden');
+        DOM.resultsArea.classList.remove('hidden');
+
+        renderTickerTabs();
+        renderActiveTickerData();
+        switchTab('income');
+
+        // Enable export button
+        DOM.btnCustomExport.disabled = false;
+
+        showToast(Lang.tf('success_loaded', { count: successCount }), 'success');
+    } else {
+        DOM.resultsArea.classList.add('hidden');
+        DOM.emptyState.classList.remove('hidden');
+        DOM.btnCustomExport.disabled = true;
+    }
+}
+
+// ─── Macroeconomics (via CF Worker relay) ───
+async function fetchMacroData() {
+    try {
+        const startYear = parseInt(DOM.startYear.value) || 2020;
+        const endYear = parseInt(DOM.endYear.value) || new Date().getFullYear();
+        const result = {};
+
+        // --- Yahoo Finance: IHSG & USDIDR (via CF Worker relay) ---
+        const yfMap = [
+            { key: 'ihsg', symbol: '^JKSE' },
+            { key: 'usdIdr', symbol: 'IDR=X' },
+        ];
+
+        const yfPromises = yfMap.map(async ({ key, symbol }) => {
+            try {
+                const resp = await fetch(`${WORKER_BASE}/api/yahoo?symbol=${encodeURIComponent(symbol)}&range=15y&interval=1mo`);
+                if (!resp.ok) return;
+                const json = await resp.json();
+                const chart = json?.chart?.result?.[0];
+                if (!chart) return;
+
+                const meta = chart.meta || {};
+                const closes = chart.indicators?.quote?.[0]?.close || [];
+                const timestamps = chart.timestamp || [];
+                const current = meta.regularMarketPrice || 0;
+                const prevClose = meta.chartPreviousClose || current;
+                const changePct = prevClose ? ((current - prevClose) / prevClose * 100) : 0;
+
+                const yearly = {};
+                timestamps.forEach((ts, i) => {
+                    if (i < closes.length && closes[i] != null) {
+                        const dt = new Date(ts * 1000);
+                        const yr = dt.getFullYear();
+                        if (yr >= startYear && yr <= endYear) {
+                            yearly[yr] = closes[i];
+                        }
+                    }
+                });
+
+                result[key] = {
+                    current: Math.round(current * 100) / 100,
+                    changePct: Math.round(changePct * 100) / 100,
+                    history: Object.entries(yearly)
+                        .sort(([a], [b]) => a - b)
+                        .map(([y, v]) => ({ year: parseInt(y), value: Math.round(v * 100) / 100 }))
+                };
+            } catch (e) {
+                console.warn(`[Macro] Yahoo ${key} error:`, e);
+            }
+        });
+
+        // --- World Bank API (via CF Worker relay) ---
+        const wbIndicators = {
+            gdp: 'NY.GDP.MKTP.KD.ZG',
+            inflation: 'FP.CPI.TOTL.ZG',
+            unemployment: 'SL.UEM.TOTL.ZS',
+            interestRate: 'FR.INR.DPST',
+        };
+
+        const wbPromises = Object.entries(wbIndicators).map(async ([key, indicator]) => {
+            try {
+                const resp = await fetch(`${WORKER_BASE}/api/worldbank?indicator=${indicator}&mrv=15`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                if (data.length > 1 && data[1]) {
+                    const entries = data[1]
+                        .filter(item => item.value != null && parseInt(item.date) >= startYear && parseInt(item.date) <= endYear)
+                        .map(item => ({ year: parseInt(item.date), value: Math.round(item.value * 100) / 100 }))
+                        .sort((a, b) => a.year - b.year);
+                    
+                    if (entries.length > 0) {
+                        result[key] = {
+                            current: entries[entries.length - 1].value,
+                            year: entries[entries.length - 1].year,
+                            history: entries,
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn(`[Macro] World Bank ${key} error:`, e);
+            }
+        });
+
+        // Fetch all macro sources in parallel
+        await Promise.all([...yfPromises, ...wbPromises]);
+
+        AppState.macroData = result;
+        if (AppState.activeTab === 'macro') {
+            renderMacroData(result);
+        }
+    } catch (e) {
+        $('#macroTab').innerHTML = `<div class="macro-loading">${Lang.t('Failed to load macroeconomic data.')}</div>`;
+    }
+}
+
+function renderMacroData(data) {
+    const metrics = [
+        { key: 'gdp',          icon: '📊', label: 'GDP Growth (YoY)',  unit: '%', color: 'cyan' },
+        { key: 'inflation',    icon: '📈', label: 'Inflation (YoY)',   unit: '%', color: 'amber' },
+        { key: 'unemployment', icon: '👥', label: 'Unemployment',      unit: '%', color: 'purple' },
+        { key: 'interestRate', icon: '🏦', label: 'Interest Rate',     unit: '%', color: 'blue' },
+        { key: 'usdIdr',       icon: '💱', label: 'USD/IDR Exchange',  unit: '',  color: 'green' },
+        { key: 'ihsg',         icon: '🇮🇩', label: 'IHSG Index',        unit: '',  color: 'red' },
+    ];
+
+    let html = '<div class="macro-grid">';
+    metrics.forEach(m => {
+        const d = data[m.key];
+        if (!d) return;
+
+        const isMarket = m.key === 'usdIdr' || m.key === 'ihsg';
+        const displayVal = isMarket
+            ? d.current.toLocaleString('id-ID', { maximumFractionDigits: 2 })
+            : d.current.toFixed(2) + m.unit;
+
+        let changeHtml = '';
+        let historyHtml = '';
+
+        if (isMarket) {
+            const latestYear = d.history && d.history.length > 0 ? d.history[d.history.length - 1].year : new Date().getFullYear();
+            changeHtml = `<span class="macro-year-badge">${Lang.t('Latest Data')}: ${latestYear}</span>`;
+        } else {
+            if (d.changePct !== undefined) {
+                const cls = d.changePct >= 0 ? 'val-positive' : 'val-negative';
+                const arrow = d.changePct >= 0 ? '▲' : '▼';
+                changeHtml = `<span class="macro-change ${cls}">${arrow} ${Math.abs(d.changePct).toFixed(2)}%</span>`;
+            } else if (d.year) {
+                changeHtml = `<span class="macro-year-badge">${Lang.t('Latest Data')}: ${d.year}</span>`;
+            }
+            
+            if (d.history && d.history.length) {
+                historyHtml = `<div class="macro-history"><table>`;
+                d.history.slice().reverse().forEach(h => {
+                const val = m.unit === '%' ? h.value.toFixed(2) + '%' : h.value.toLocaleString('id-ID', { maximumFractionDigits: 2 });
+                    historyHtml += `<tr><td>${h.year}</td><td>${val}</td></tr>`;
+                });
+                historyHtml += '</table></div>';
+            }
+        }
+
+        html += `
+            <div class="macro-card macro-${m.color}">
+                <div class="macro-card-header">
+                    <span class="macro-icon">${m.icon}</span>
+                    <span class="macro-label">${Lang.t(m.label)}</span>
+                </div>
+                <div class="macro-value">${displayVal}</div>
+                ${changeHtml}
+                ${historyHtml}
+            </div>`;
+    });
+    html += '</div>';
+    $('#macroTab').innerHTML = html;
+}
+
+// ─── Event Listeners ───
+DOM.form.addEventListener('submit', handleSubmit);
+
+// Language toggle
+$('#langToggle').addEventListener('click', () => {
+    Lang.set(Lang.current === 'en' ? 'id' : 'en');
+});
+
+// Statement tab switching
+$$('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// Ticker tab switching (event delegation)
+DOM.tickerTabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('.ticker-tab');
+    if (btn) switchTicker(btn.dataset.ticker);
+});
+
+// --- Export Logic ---
+
+// --- Custom Export Modal Logic ---
+DOM.btnCustomExport.addEventListener('click', () => {
+    openCustomExportModal();
+});
+
+DOM.btnCloseModal.addEventListener('click', () => {
+    DOM.exportModal.classList.add('hidden');
+});
+
+// Close modal when clicking outside
+DOM.exportModal.addEventListener('click', (e) => {
+    if (e.target === DOM.exportModal) {
+        DOM.exportModal.classList.add('hidden');
+    }
+});
+
+DOM.checkAllMetrics.addEventListener('change', (e) => {
+    const isChecked = e.target.checked;
+    $$('.metric-cb').forEach(cb => cb.checked = isChecked);
+});
+
+// --- Format Toggle Logic ---
+DOM.exportFormatToggle.addEventListener('click', (e) => {
+    const opt = e.target.closest('.format-option');
+    if (!opt) return;
+    
+    // Update active visual state
+    DOM.exportFormatToggle.querySelectorAll('.format-option').forEach(el => el.classList.remove('active'));
+    opt.classList.add('active');
+    
+    // Update underlying dataset format value
+    DOM.exportFormatToggle.dataset.format = opt.dataset.val;
+});
+
+DOM.btnDoCustomExport.addEventListener('click', () => {
+    const checked = Array.from($$('.metric-cb')).filter(cb => cb.checked).map(cb => cb.value);
+    if (!checked.length) {
+        showToast(Lang.t('Please select at least one metric.'), 'error');
+        return;
+    }
+    ExportModule.customExcelExport(AppState.allData, checked, AppState.macroData, DOM.exportFormatToggle.dataset.format);
+    DOM.exportModal.classList.add('hidden');
+    showToast(Lang.t('Custom Excel exported successfully!'), 'success');
+});
+
+// --- Auth Logic (via CF Worker relay) ---
+
+// Check local storage on load
+(async function initAuth() {
+    const savedUser = localStorage.getItem('finscope_user');
+    const savedPass = localStorage.getItem('finscope_pass');
+    
+    if (savedUser && savedPass) {
+        DOM.btnLogin.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;margin-right:5px;border-top-color:var(--text-primary);"></span> ${Lang.t('Resuming Session...')}`;
+        DOM.btnLogin.disabled = true;
+        try {
+            const response = await fetch(`${WORKER_BASE}/api/auth`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: savedUser, password: savedPass })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                DOM.loginPage.classList.add('hidden');
+                DOM.appShell.classList.remove('hidden');
+            } else {
+                localStorage.removeItem('finscope_user');
+                localStorage.removeItem('finscope_pass');
+                DOM.btnLogin.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><span data-lang-key="Sign In">Sign In</span>`;
+                DOM.btnLogin.disabled = false;
+            }
+        } catch(err) {
+            // Keep on login page but leave storage intact if just an offline issue
+            DOM.btnLogin.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><span data-lang-key="Sign In">Sign In</span>`;
+            DOM.btnLogin.disabled = false;
+        }
+    }
+})();
+
+DOM.loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const username = DOM.usernameInput.value.trim();
+    const password = DOM.passwordInput.value.trim();
+    
+    if(!username || !password) return;
+    
+    const originalBtnHTML = DOM.btnLogin.innerHTML;
+    DOM.btnLogin.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> ${Lang.t('Verifying...')}`;
+    DOM.btnLogin.disabled = true;
+
+    try {
+        const response = await fetch(`${WORKER_BASE}/api/auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            localStorage.setItem('finscope_user', username);
+            localStorage.setItem('finscope_pass', password);
+            showToast(result.message, 'success');
+            setTimeout(() => {
+                DOM.loginPage.classList.add('hidden');
+                DOM.appShell.classList.remove('hidden');
+            }, 600);
+        } else if (result.status === 'expired') {
+            localStorage.removeItem('finscope_user');
+            localStorage.removeItem('finscope_pass');
+            showToast(result.message, 'error');
+            DOM.btnLogin.innerHTML = originalBtnHTML;
+            DOM.btnLogin.disabled = false;
+        } else {
+            localStorage.removeItem('finscope_user');
+            localStorage.removeItem('finscope_pass');
+            showToast(result.message || 'Authentication failed', 'error');
+            DOM.btnLogin.innerHTML = originalBtnHTML;
+            DOM.btnLogin.disabled = false;
+        }
+    } catch(err) {
+        showToast(Lang.t('Connection error during authentication'), 'error');
+        DOM.btnLogin.innerHTML = originalBtnHTML;
+        DOM.btnLogin.disabled = false;
+    }
+});
+
+const btnLogout = $('#btnLogout');
+if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+        localStorage.removeItem('finscope_user');
+        localStorage.removeItem('finscope_pass');
+        window.location.reload();
+    });
+}
+
+let promoTimerInterval = null;
+function startPromoCountdown() {
+    if (promoTimerInterval) clearInterval(promoTimerInterval);
+    let endTime = sessionStorage.getItem('promoEndTime');
+    if (!endTime || Date.now() > endTime) {
+        endTime = Date.now() + (Math.floor(Math.random() * 2 * 3600 + 3600) * 1000); // 1h to 3h
+        sessionStorage.setItem('promoEndTime', endTime);
+    }
+    
+    const display = $('#promoCountdown');
+    if (!display) return;
+
+    function update() {
+        const diff = Math.max(0, endTime - Date.now());
+        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+        display.textContent = `${h}:${m}:${s}`;
+        if (diff === 0) clearInterval(promoTimerInterval);
+    }
+    
+    update();
+    promoTimerInterval = setInterval(update, 1000);
+}
+
+DOM.btnPricingInfo.addEventListener('click', () => {
+    DOM.pricingModal.classList.remove('hidden');
+    startPromoCountdown();
+});
+
+DOM.btnClosePricingModal.addEventListener('click', () => {
+    DOM.pricingModal.classList.add('hidden');
+});
+
+DOM.pricingModal.addEventListener('click', (e) => {
+    if (e.target === DOM.pricingModal) {
+        DOM.pricingModal.classList.add('hidden');
+    }
+});
+
+async function openCustomExportModal() {
+    DOM.btnCustomExport.disabled = true;
+    const prevText = DOM.btnCustomExport.innerHTML;
+    DOM.btnCustomExport.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;border-top-color:var(--text-primary);display:inline-block;margin-right:5px"></span>' + Lang.t('Loading...');
+    
+    // Ensure macro data is fetched before showing modal so it can be added to export
+    if (!AppState.macroData) {
+        await fetchMacroData();
+    }
+    
+    DOM.btnCustomExport.innerHTML = prevText;
+    DOM.btnCustomExport.disabled = false;
+
+    DOM.metricsGrid.innerHTML = '';
+    const categories = {
+        'Income Statement': new Set(),
+        'Balance Sheet': new Set(),
+        'Cash Flow': new Set(),
+        'Key Stats': new Set(),
+        'Financial Ratios': new Set(),
+        'Macroeconomics': new Set()
+    };
+
+    if (AppState.macroData) {
+        categories['Macroeconomics'].add(Lang.t('GDP Growth (YoY)'));
+        categories['Macroeconomics'].add(Lang.t('Inflation (YoY)'));
+        categories['Macroeconomics'].add(Lang.t('Unemployment'));
+        categories['Macroeconomics'].add(Lang.t('Interest Rate'));
+        categories['Macroeconomics'].add(Lang.t('USD/IDR Exchange'));
+        categories['Macroeconomics'].add(Lang.t('IHSG Index'));
+    }
+
+    Object.values(AppState.allData).forEach(data => {
+        data.years.forEach(y => {
+            if (data.income && data.income[y]) Object.keys(data.income[y]).forEach(k => categories['Income Statement'].add(k));
+            if (data.balance && data.balance[y]) Object.keys(data.balance[y]).forEach(k => categories['Balance Sheet'].add(k));
+            if (data.cashflow && data.cashflow[y]) Object.keys(data.cashflow[y]).forEach(k => categories['Cash Flow'].add(k));
+            if (data.keystats && data.keystats[y]) Object.keys(data.keystats[y]).forEach(k => categories['Key Stats'].add(k));
+        });
+        if (data.ratios) {
+            ['profitability', 'solvency', 'liquidity', 'activity', 'valuation'].forEach(p => {
+                if(data.ratios[p]) data.ratios[p].metrics.forEach(m => categories['Financial Ratios'].add(m.name));
+            });
+        }
+    });
+
+    // Special requested metrics explicit inclusion
+    categories['Key Stats'].add('Stock Price');
+
+    let html = '';
+    for (const [catName, keysSet] of Object.entries(categories)) {
+        if (keysSet.size === 0) continue;
+        html += `<div class="metrics-category">${catName === 'Macroeconomics' ? Lang.t('Macroeconomics') : Lang.t(catName) || catName}</div>`;
+        Array.from(keysSet).sort().forEach(key => {
+            const label = catName === 'Financial Ratios' || catName === 'Macroeconomics' || key === 'Stock Price' ? key : labelFromKey(key);
+            html += `<label class="metric-item"><input type="checkbox" class="metric-cb" value="${label}" checked> <span>${label}</span></label>`;
+        });
+    }
+
+    DOM.metricsGrid.innerHTML = html;
+    DOM.checkAllMetrics.checked = true; // Default to all checked initially
+    DOM.exportModal.classList.remove('hidden');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+        DOM.form.dispatchEvent(new Event('submit'));
+    }
+    if (e.key === 'Escape' && !DOM.exportModal.classList.contains('hidden')) {
+        DOM.exportModal.classList.add('hidden');
+    }
+});
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    Lang.set(Lang.current);
+});
+
+;
+</script>
+</body>
+</html>
